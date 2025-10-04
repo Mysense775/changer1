@@ -5,6 +5,11 @@ class CryptoExchange {
     constructor() {
         this.currentRate = 90.50;
         this.commission = 0.5;
+        this.currentOperation = 'buy'; // 'buy' or 'sell'
+        this.paymentMethod = 'card';
+        this.userCards = [
+            { id: 1, name: 'Тинькофф •• 7890', type: 'visa', isDefault: true }
+        ];
         this.init();
     }
 
@@ -42,15 +47,16 @@ class CryptoExchange {
     }
 
     setupEventListeners() {
-        // Amount input
-        document.getElementById('giveAmount').addEventListener('input', () => this.calculateExchange());
-        
-        // Currency changes
-        document.getElementById('giveCurrency').addEventListener('change', () => this.calculateExchange());
-        document.getElementById('getCurrency').addEventListener('change', () => this.calculateExchange());
-        
-        // Swap button
-        document.getElementById('swapBtn').addEventListener('click', () => this.swapCurrencies());
+        // Operation tabs
+        document.querySelectorAll('.operation-tab').forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                this.switchOperation(e.target.dataset.operation);
+            });
+        });
+
+        // Amount inputs
+        document.getElementById('buyAmount').addEventListener('input', () => this.calculateExchange());
+        document.getElementById('sellAmount').addEventListener('input', () => this.calculateExchange());
         
         // Quick amount buttons
         document.querySelectorAll('.amount-btn').forEach(btn => {
@@ -59,11 +65,33 @@ class CryptoExchange {
                 e.target.classList.add('active');
                 
                 const amount = e.target.dataset.amount;
-                document.getElementById('giveAmount').value = amount;
+                if (this.currentOperation === 'buy') {
+                    document.getElementById('buyAmount').value = amount;
+                } else {
+                    document.getElementById('sellAmount').value = amount;
+                }
                 this.calculateExchange();
             });
         });
-        
+
+        // Payment methods
+        document.querySelectorAll('.payment-method').forEach(method => {
+            method.addEventListener('click', (e) => {
+                document.querySelectorAll('.payment-method').forEach(m => m.classList.remove('active'));
+                e.currentTarget.classList.add('active');
+                this.paymentMethod = e.currentTarget.dataset.method;
+            });
+        });
+
+        // Card management
+        document.getElementById('addCardBtn').addEventListener('click', () => this.showCardForm());
+        document.getElementById('saveCardBtn').addEventListener('click', () => this.saveCard());
+
+        // Card input formatting
+        document.querySelector('.card-number')?.addEventListener('input', (e) => this.formatCardNumber(e));
+        document.querySelector('.card-expiry')?.addEventListener('input', (e) => this.formatExpiry(e));
+        document.querySelector('.card-cvc')?.addEventListener('input', (e) => this.formatCVC(e));
+
         // Exchange button
         document.getElementById('exchangeBtn').addEventListener('click', () => this.executeExchange());
         
@@ -73,70 +101,162 @@ class CryptoExchange {
         document.getElementById('profileBtn').addEventListener('click', () => this.showProfile());
     }
 
-    calculateExchange() {
-        const giveAmount = parseFloat(document.getElementById('giveAmount').value) || 0;
-        const giveCurrency = document.getElementById('giveCurrency').value;
-        const getCurrency = document.getElementById('getCurrency').value;
+    switchOperation(operation) {
+        this.currentOperation = operation;
         
-        if (giveAmount <= 0) {
-            this.updateDisplay(0, giveCurrency, getCurrency);
-            return;
-        }
+        // Update tabs
+        document.querySelectorAll('.operation-tab').forEach(tab => {
+            tab.classList.toggle('active', tab.dataset.operation === operation);
+        });
+        
+        // Update sections
+        document.querySelectorAll('.operation-section').forEach(section => {
+            section.classList.toggle('active', section.id === `${operation}Section`);
+        });
+        
+        // Update button text
+        const btnText = document.getElementById('btnText');
+        btnText.textContent = operation === 'buy' ? 'Купить USDT' : 'Продать USDT';
+        
+        this.calculateExchange();
+    }
 
-        let result;
-        if (giveCurrency === 'USDT' && getCurrency === 'RUB') {
-            result = giveAmount * this.currentRate;
-        } else if (giveCurrency === 'RUB' && getCurrency === 'USDT') {
-            result = giveAmount / this.currentRate;
+    calculateExchange() {
+        let giveAmount, getAmount;
+        
+        if (this.currentOperation === 'buy') {
+            giveAmount = parseFloat(document.getElementById('buyAmount').value) || 0;
+            getAmount = giveAmount / this.currentRate;
         } else {
-            result = giveAmount;
+            giveAmount = parseFloat(document.getElementById('sellAmount').value) || 0;
+            getAmount = giveAmount * this.currentRate;
         }
 
         // Apply commission
-        const commissionAmount = result * (this.commission / 100);
-        const totalAmount = result - commissionAmount;
+        const commissionAmount = getAmount * (this.commission / 100);
+        const totalAmount = getAmount - commissionAmount;
 
-        this.updateDisplay(totalAmount, giveCurrency, getCurrency);
+        this.updateDisplay(totalAmount);
     }
 
-    updateDisplay(totalAmount, giveCurrency, getCurrency) {
-        const getAmountInput = document.getElementById('getAmount');
+    updateDisplay(totalAmount) {
         const totalAmountElement = document.getElementById('totalAmount');
         const btnSubtext = document.getElementById('btnSubtext');
         const exchangeRate = document.getElementById('exchangeRate');
         const exchangeFee = document.getElementById('exchangeFee');
 
-        getAmountInput.value = totalAmount.toFixed(2);
-        totalAmountElement.textContent = `${totalAmount.toFixed(2)} ${getCurrency === 'RUB' ? '₽' : getCurrency}`;
-        btnSubtext.textContent = `${totalAmount.toFixed(2)} ${getCurrency === 'RUB' ? '₽' : getCurrency}`;
-
-        // Update exchange rate display
-        if (giveCurrency === 'USDT' && getCurrency === 'RUB') {
+        if (this.currentOperation === 'buy') {
+            document.getElementById('buyGetAmount').value = totalAmount.toFixed(2);
+            totalAmountElement.textContent = `${totalAmount.toFixed(2)} USDT`;
+            btnSubtext.textContent = `${totalAmount.toFixed(2)} USDT`;
             exchangeRate.textContent = `1 USDT = ${this.currentRate.toFixed(2)} ₽`;
         } else {
-            exchangeRate.textContent = `1 ₽ = ${(1/this.currentRate).toFixed(4)} USDT`;
+            document.getElementById('sellGetAmount').value = totalAmount.toFixed(2);
+            totalAmountElement.textContent = `${totalAmount.toFixed(2)} ₽`;
+            btnSubtext.textContent = `${totalAmount.toFixed(2)} ₽`;
+            exchangeRate.textContent = `1 USDT = ${this.currentRate.toFixed(2)} ₽`;
         }
 
         exchangeFee.textContent = `${this.commission}%`;
     }
 
-    swapCurrencies() {
-        const giveCurrency = document.getElementById('giveCurrency');
-        const getCurrency = document.getElementById('getCurrency');
-        const giveAmount = document.getElementById('giveAmount');
-        const getAmount = document.getElementById('getAmount');
+    showCardForm() {
+        const form = document.getElementById('newCardForm');
+        form.style.display = form.style.display === 'none' ? 'block' : 'none';
+    }
 
-        [giveCurrency.value, getCurrency.value] = [getCurrency.value, giveCurrency.value];
-        giveAmount.value = getAmount.value;
+    formatCardNumber(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        value = value.replace(/(\d{4})/g, '$1 ').trim();
+        value = value.substring(0, 19);
+        e.target.value = value;
+    }
+
+    formatExpiry(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length >= 2) {
+            value = value.substring(0, 2) + '/' + value.substring(2, 4);
+        }
+        value = value.substring(0, 5);
+        e.target.value = value;
+    }
+
+    formatCVC(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        value = value.substring(0, 3);
+        e.target.value = value;
+    }
+
+    saveCard() {
+        const cardNumber = document.querySelector('.card-number').value;
+        const cardExpiry = document.querySelector('.card-expiry').value;
+        const cardCVC = document.querySelector('.card-cvc').value;
+
+        if (!this.validateCard(cardNumber, cardExpiry, cardCVC)) {
+            this.showError('Пожалуйста, проверьте данные карты');
+            return;
+        }
+
+        // Simulate API call to save card
+        const lastFour = cardNumber.replace(/\s/g, '').slice(-4);
+        const newCard = {
+            id: Date.now(),
+            name: `Карта •• ${lastFour}`,
+            type: this.getCardType(cardNumber),
+            isDefault: this.userCards.length === 0
+        };
+
+        this.userCards.push(newCard);
+        this.showSuccess('Карта успешно добавлена!');
         
-        this.calculateExchange();
+        // Reset form
+        document.getElementById('newCardForm').style.display = 'none';
+        document.querySelector('.card-number').value = '';
+        document.querySelector('.card-expiry').value = '';
+        document.querySelector('.card-cvc').value = '';
+
+        this.updateSavedCards();
+    }
+
+    validateCard(number, expiry, cvc) {
+        const cleanNumber = number.replace(/\s/g, '');
+        return cleanNumber.length === 16 && 
+               expiry.length === 5 && 
+               cvc.length === 3;
+    }
+
+    getCardType(number) {
+        const cleanNumber = number.replace(/\s/g, '');
+        if (/^4/.test(cleanNumber)) return 'visa';
+        if (/^5[1-5]/.test(cleanNumber)) return 'mastercard';
+        if (/^2/.test(cleanNumber)) return 'mir';
+        return 'unknown';
+    }
+
+    updateSavedCards() {
+        // Update saved cards list in UI
+        const savedCardsContainer = document.querySelector('.saved-cards');
+        // Implementation for dynamic cards update
     }
 
     executeExchange() {
-        const giveAmount = document.getElementById('giveAmount').value;
-        const giveCurrency = document.getElementById('giveCurrency').value;
-        const getAmount = document.getElementById('getAmount').value;
-        const getCurrency = document.getElementById('getCurrency').value;
+        let giveAmount, getAmount, currency;
+        
+        if (this.currentOperation === 'buy') {
+            giveAmount = document.getElementById('buyAmount').value;
+            getAmount = document.getElementById('buyGetAmount').value;
+            currency = 'USDT';
+        } else {
+            giveAmount = document.getElementById('sellAmount').value;
+            getAmount = document.getElementById('sellGetAmount').value;
+            currency = 'RUB';
+            
+            // Check if card is selected for withdrawal
+            if (!this.userCards.length) {
+                this.showError('Пожалуйста, добавьте карту для вывода средств');
+                return;
+            }
+        }
 
         if (!giveAmount || parseFloat(giveAmount) <= 0) {
             this.showError('Введите сумму для обмена');
@@ -157,16 +277,21 @@ class CryptoExchange {
 
         // Simulate API call
         setTimeout(() => {
+            const operationText = this.currentOperation === 'buy' ? 'покупки' : 'продажи';
             this.showSuccess(
-                `Успешный обмен!`, 
-                `${giveAmount} ${giveCurrency} → ${getAmount} ${getCurrency}`
+                `Заявка на ${operationText} создана!`, 
+                `${giveAmount} ${this.currentOperation === 'buy' ? '₽' : 'USDT'} → ${getAmount} ${currency}`
             );
             
             exchangeBtn.innerHTML = originalHTML;
             exchangeBtn.disabled = false;
             
             // Reset form
-            document.getElementById('giveAmount').value = '1000';
+            if (this.currentOperation === 'buy') {
+                document.getElementById('buyAmount').value = '1000';
+            } else {
+                document.getElementById('sellAmount').value = '100';
+            }
             this.calculateExchange();
         }, 2000);
     }
