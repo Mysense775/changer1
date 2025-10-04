@@ -4,10 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>💱 CryptoExchange | Обмен USDT/RUB</title>
+    <meta name="description" content="Быстрый и безопасный обмен USDT на RUB. Мгновенные переводы на карту с лучшим курсом.">
+    <meta name="keywords" content="USDT, RUB, обмен, криптовалюта, Tether, рубли, карта, перевод">
     <link rel="stylesheet" href="styles.css">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💱</text></svg>">
 </head>
 <body>
     <div class="app">
@@ -75,12 +78,12 @@
 
                     <!-- Direction Selector -->
                     <div class="direction-selector">
-                        <button class="dir-btn active" data-direction="buy">
+                        <button class="dir-btn active" data-direction="buy" aria-pressed="true">
                             <span class="dir-icon">↗️</span>
                             <span class="dir-text">Купить USDT</span>
                             <span class="dir-subtext">RUB → USDT</span>
                         </button>
-                        <button class="dir-btn" data-direction="sell">
+                        <button class="dir-btn" data-direction="sell" aria-pressed="false">
                             <span class="dir-icon">↘️</span>
                             <span class="dir-text">Продать USDT</span>
                             <span class="dir-subtext">USDT → RUB</span>
@@ -105,9 +108,12 @@
                                         id="giveAmount"
                                         placeholder="0.00"
                                         value="1000"
+                                        min="0"
+                                        step="0.01"
+                                        aria-label="Сумма для обмена"
                                     >
                                     <div class="currency-display">
-                                        <span class="currency-flag" id="giveCurrencyFlag">₽</span>
+                                        <span class="currency-flag" id="giveCurrencyFlag" aria-hidden="true">₽</span>
                                         <span class="currency-code" id="giveCurrencyCode">RUB</span>
                                     </div>
                                 </div>
@@ -116,10 +122,10 @@
 
                         <div class="swap-container">
                             <div class="swap-arrow">
-                                <i class="fas fa-arrow-down"></i>
+                                <i class="fas fa-arrow-down" aria-hidden="true"></i>
                             </div>
                             <div class="rate-display" id="rateDisplay">
-                                <i class="fas fa-sync-alt"></i>
+                                <i class="fas fa-sync-alt" aria-hidden="true"></i>
                                 1 USDT = 90.50 ₽
                             </div>
                         </div>
@@ -140,9 +146,11 @@
                                         id="getAmount"
                                         placeholder="0.00"
                                         readonly
+                                        aria-label="Получаемая сумма"
+                                        aria-readonly="true"
                                     >
                                     <div class="currency-display">
-                                        <span class="currency-flag" id="getCurrencyFlag">₿</span>
+                                        <span class="currency-flag" id="getCurrencyFlag" aria-hidden="true">₿</span>
                                         <span class="currency-code" id="getCurrencyCode">USDT</span>
                                     </div>
                                 </div>
@@ -150,19 +158,19 @@
                         </div>
 
                         <!-- Wallet Info for USDT Sale -->
-                        <div class="wallet-info" id="walletInfo" style="display: none;">
+                        <div class="wallet-info" id="walletInfo" style="display: none;" aria-live="polite">
                             <div class="wallet-header">
-                                <i class="fas fa-wallet"></i>
+                                <i class="fas fa-wallet" aria-hidden="true"></i>
                                 <span>Наш кошелёк для перевода USDT</span>
                             </div>
                             <div class="wallet-address">
-                                <code class="address-code" id="walletAddress">XXXYYYZZZ</code>
-                                <button class="copy-btn" id="copyWalletBtn">
-                                    <i class="fas fa-copy"></i>
+                                <code class="address-code" id="walletAddress" aria-label="Адрес кошелька TRC-20">XXXYYYZZZ</code>
+                                <button class="copy-btn" id="copyWalletBtn" aria-label="Скопировать адрес кошелька">
+                                    <i class="fas fa-copy" aria-hidden="true"></i>
                                 </button>
                             </div>
                             <div class="wallet-note">
-                                <i class="fas fa-exclamation-circle"></i>
+                                <i class="fas fa-exclamation-circle" aria-hidden="true"></i>
                                 <span>Переводите USDT только по сети TRC-20</span>
                             </div>
                         </div>
@@ -171,26 +179,26 @@
                     <!-- Quick Amount Buttons -->
                     <div class="quick-amounts">
                         <div class="quick-amounts-label">
-                            <i class="fas fa-bolt"></i>
+                            <i class="fas fa-bolt" aria-hidden="true"></i>
                             Быстрая сумма:
                         </div>
                         <div class="amount-buttons">
-                            <button class="amount-btn" data-amount="1000">1 000</button>
-                            <button class="amount-btn" data-amount="5000">5 000</button>
-                            <button class="amount-btn" data-amount="10000">10 000</button>
-                            <button class="amount-btn" data-amount="50000">50 000</button>
+                            <button class="amount-btn" data-amount="1000" type="button">1 000</button>
+                            <button class="amount-btn" data-amount="5000" type="button">5 000</button>
+                            <button class="amount-btn" data-amount="10000" type="button">10 000</button>
+                            <button class="amount-btn" data-amount="50000" type="button">50 000</button>
                         </div>
                     </div>
 
                     <!-- Action Button -->
                     <div class="action-section">
-                        <button class="btn btn-primary btn-large" id="exchangeBtn">
+                        <button class="btn btn-primary btn-large" id="exchangeBtn" type="button">
                             <span class="btn-content">
                                 <span class="btn-text">Обменять</span>
                                 <span class="btn-subtext" id="btnSubtext">Получите: 90.50 USDT</span>
                             </span>
                             <div class="btn-arrow">
-                                <i class="fas fa-arrow-right"></i>
+                                <i class="fas fa-arrow-right" aria-hidden="true"></i>
                             </div>
                         </button>
                     </div>
@@ -200,7 +208,7 @@
                 <div class="trust-indicators">
                     <div class="trust-item">
                         <div class="trust-icon">
-                            <i class="fas fa-shield-alt"></i>
+                            <i class="fas fa-shield-alt" aria-hidden="true"></i>
                         </div>
                         <div class="trust-content">
                             <h4>100% Безопасно</h4>
@@ -209,7 +217,7 @@
                     </div>
                     <div class="trust-item">
                         <div class="trust-icon">
-                            <i class="fas fa-clock"></i>
+                            <i class="fas fa-clock" aria-hidden="true"></i>
                         </div>
                         <div class="trust-content">
                             <h4>24/7 Поддержка</h4>
@@ -221,17 +229,17 @@
         </section>
 
         <!-- Advantages Section -->
-        <section class="advantages-section">
+        <section class="advantages-section" aria-labelledby="advantages-title">
             <div class="container">
                 <div class="section-header">
-                    <h2>Почему выбирают нас?</h2>
+                    <h2 id="advantages-title">Почему выбирают нас?</h2>
                     <p>Тысячи клиентов доверяют нам свои операции</p>
                 </div>
 
                 <div class="advantages-grid">
                     <div class="advantage-card">
                         <div class="advantage-icon">
-                            <i class="fas fa-rocket"></i>
+                            <i class="fas fa-rocket" aria-hidden="true"></i>
                         </div>
                         <h3>Мгновенные переводы</h3>
                         <p>Среднее время обработки операции всего 1-5 минут. Получайте деньги моментально!</p>
@@ -239,7 +247,7 @@
                     
                     <div class="advantage-card">
                         <div class="advantage-icon">
-                            <i class="fas fa-percentage"></i>
+                            <i class="fas fa-percentage" aria-hidden="true"></i>
                         </div>
                         <h3>Минимальная комиссия</h3>
                         <p>Всего 0.5% за операцию - один из самых низких тарифов на рынке</p>
@@ -247,7 +255,7 @@
                     
                     <div class="advantage-card">
                         <div class="advantage-icon">
-                            <i class="fas fa-lock"></i>
+                            <i class="fas fa-lock" aria-hidden="true"></i>
                         </div>
                         <h3>Полная безопасность</h3>
                         <p>SSL шифрование и двухфакторная аутентификация для защиты ваших средств</p>
@@ -255,7 +263,7 @@
                     
                     <div class="advantage-card">
                         <div class="advantage-icon">
-                            <i class="fas fa-credit-card"></i>
+                            <i class="fas fa-credit-card" aria-hidden="true"></i>
                         </div>
                         <h3>Любые банки</h3>
                         <p>Работаем со всеми российскими банками: Сбер, Тинькофф, ВТБ, Альфа и другими</p>
@@ -265,16 +273,16 @@
         </section>
 
         <!-- How It Works Section -->
-        <section class="how-it-works">
+        <section class="how-it-works" aria-labelledby="how-it-works-title">
             <div class="container">
                 <div class="section-header">
-                    <h2>Как это работает?</h2>
+                    <h2 id="how-it-works-title">Как это работает?</h2>
                     <p>Всего 3 простых шага до получения средств</p>
                 </div>
 
                 <div class="steps-container">
                     <div class="step-card">
-                        <div class="step-number">1</div>
+                        <div class="step-number" aria-hidden="true">1</div>
                         <div class="step-content">
                             <h3>Выберите операцию</h3>
                             <p>Укажите направление обмена и сумму. Система автоматически рассчитает курс</p>
@@ -282,7 +290,7 @@
                     </div>
                     
                     <div class="step-card">
-                        <div class="step-number">2</div>
+                        <div class="step-number" aria-hidden="true">2</div>
                         <div class="step-content">
                             <h3>Подтвердите платёж</h3>
                             <p>Выберите способ оплаты или укажите карту для получения средств</p>
@@ -290,7 +298,7 @@
                     </div>
                     
                     <div class="step-card">
-                        <div class="step-number">3</div>
+                        <div class="step-number" aria-hidden="true">3</div>
                         <div class="step-content">
                             <h3>Получите деньги</h3>
                             <p>Средства поступят на ваш счёт в течение 1-15 минут</p>
@@ -299,35 +307,35 @@
                 </div>
 
                 <!-- USDT Transfer Instructions -->
-                <div class="transfer-instructions">
+                <div class="transfer-instructions" aria-labelledby="transfer-instructions-title">
                     <div class="instructions-header">
-                        <h3><i class="fab fa-usdt"></i> Как перевести USDT?</h3>
+                        <h3 id="transfer-instructions-title"><i class="fab fa-usdt" aria-hidden="true"></i> Как перевести USDT?</h3>
                         <p>Инструкция по переводу USDT на наш кошелёк</p>
                     </div>
                     <div class="instructions-steps">
                         <div class="instruction-step">
-                            <div class="step-icon">1</div>
+                            <div class="step-icon" aria-hidden="true">1</div>
                             <div class="step-details">
                                 <h4>Скопируйте наш адрес</h4>
                                 <p>Нажмите на кнопку копирования при продаже USDT</p>
                             </div>
                         </div>
                         <div class="instruction-step">
-                            <div class="step-icon">2</div>
+                            <div class="step-icon" aria-hidden="true">2</div>
                             <div class="step-details">
                                 <h4>Откройте ваш кошелёк</h4>
                                 <p>Перейдите в Trust Wallet, Binance или другой кошелёк</p>
                             </div>
                         </div>
                         <div class="instruction-step">
-                            <div class="step-icon">3</div>
+                            <div class="step-icon" aria-hidden="true">3</div>
                             <div class="step-details">
                                 <h4>Выполните перевод</h4>
                                 <p>Вставьте адрес и отправьте USDT по сети <strong>TRC-20</strong></p>
                             </div>
                         </div>
                         <div class="instruction-step">
-                            <div class="step-icon">4</div>
+                            <div class="step-icon" aria-hidden="true">4</div>
                             <div class="step-details">
                                 <h4>Получите рубли</h4>
                                 <p>После подтверждения транзакции получите RUB на карту</p>
@@ -339,61 +347,71 @@
         </section>
 
         <!-- FAQ Section -->
-        <section class="faq-section">
+        <section class="faq-section" aria-labelledby="faq-title">
             <div class="container">
                 <div class="section-header">
-                    <h2>Частые вопросы</h2>
+                    <h2 id="faq-title">Частые вопросы</h2>
                     <p>Всё, что нужно знать об обмене</p>
                 </div>
 
                 <div class="faq-list">
                     <div class="faq-item">
-                        <div class="faq-question">
+                        <div class="faq-question" aria-expanded="false" aria-controls="faq-answer-1">
                             <span>На какой адрес переводить USDT?</span>
-                            <i class="fas fa-chevron-down"></i>
+                            <i class="fas fa-chevron-down" aria-hidden="true"></i>
                         </div>
-                        <div class="faq-answer">
-                            <p>При продаже USDT вы увидите наш адрес кошелька. Переводите только на этот адрес по сети TRC-20.</p>
+                        <div class="faq-answer" id="faq-answer-1">
+                            <p>При продаже USDT вы увидите наш адрес кошелька. Переводите только на этот адрес по сети TRC-20. Адрес обновляется для каждой операции в целях безопасности.</p>
                         </div>
                     </div>
                     
                     <div class="faq-item">
-                        <div class="faq-question">
+                        <div class="faq-question" aria-expanded="false" aria-controls="faq-answer-2">
                             <span>Какие комиссии при обмене?</span>
-                            <i class="fas fa-chevron-down"></i>
+                            <i class="fas fa-chevron-down" aria-hidden="true"></i>
                         </div>
-                        <div class="faq-answer">
-                            <p>Наша комиссия составляет всего 0.5% от суммы операции. Дополнительные комиссии банков не взимаются.</p>
+                        <div class="faq-answer" id="faq-answer-2">
+                            <p>Наша комиссия составляет всего 0.5% от суммы операции. Дополнительные комиссии банков не взимаются. Комиссия сети TRC-20 оплачивается отправителем.</p>
                         </div>
                     </div>
                     
                     <div class="faq-item">
-                        <div class="faq-question">
+                        <div class="faq-question" aria-expanded="false" aria-controls="faq-answer-3">
                             <span>Сколько времени занимает обмен?</span>
-                            <i class="fas fa-chevron-down"></i>
+                            <i class="fas fa-chevron-down" aria-hidden="true"></i>
                         </div>
-                        <div class="faq-answer">
-                            <p>В среднем операции занимают 1-5 минут. В редких случаях до 15 минут при высокой нагрузке.</p>
+                        <div class="faq-answer" id="faq-answer-3">
+                            <p>В среднем операции занимают 1-5 минут. В редких случаях до 15 минут при высокой нагрузке или при ожидании подтверждения транзакции в блокчейне.</p>
                         </div>
                     </div>
                     
                     <div class="faq-item">
-                        <div class="faq-question">
+                        <div class="faq-question" aria-expanded="false" aria-controls="faq-answer-4">
                             <span>Какие лимиты на операции?</span>
-                            <i class="fas fa-chevron-down"></i>
+                            <i class="fas fa-chevron-down" aria-hidden="true"></i>
                         </div>
-                        <div class="faq-answer">
-                            <p>Минимальная сумма - 500 ₽, максимальная - 500,000 ₽ в сутки. После верификации лимиты увеличиваются.</p>
+                        <div class="faq-answer" id="faq-answer-4">
+                            <p>Минимальная сумма - 500 ₽, максимальная - 500,000 ₽ в сутки. После верификации лимиты увеличиваются. Для корпоративных клиентов доступны индивидуальные условия.</p>
                         </div>
                     </div>
                     
                     <div class="faq-item">
-                        <div class="faq-question">
+                        <div class="faq-question" aria-expanded="false" aria-controls="faq-answer-5">
                             <span>Какой курс обмена?</span>
-                            <i class="fas fa-chevron-down"></i>
+                            <i class="fas fa-chevron-down" aria-hidden="true"></i>
                         </div>
-                        <div class="faq-answer">
-                            <p>Мы предлагаем лучший курс на рынке, который обновляется в реальном времени.</p>
+                        <div class="faq-answer" id="faq-answer-5">
+                            <p>Мы предлагаем лучший курс на рынке, который обновляется в реальном времени. Курс фиксируется на момент создания заявки и не меняется в процессе обработки.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" aria-expanded="false" aria-controls="faq-answer-6">
+                            <span>Какие способы оплаты доступны?</span>
+                            <i class="fas fa-chevron-down" aria-hidden="true"></i>
+                        </div>
+                        <div class="faq-answer" id="faq-answer-6">
+                            <p>При покупке USDT доступны: банковские карты (Visa, Mastercard, МИР) и СБП. При продаже USDT - перевод на любую российскую банковскую карту.</p>
                         </div>
                     </div>
                 </div>
@@ -401,11 +419,11 @@
         </section>
 
         <!-- CTA Section -->
-        <section class="cta-section">
+        <section class="cta-section" aria-labelledby="cta-title">
             <div class="container">
                 <div class="cta-card">
                     <div class="cta-content">
-                        <h2>Готовы начать?</h2>
+                        <h2 id="cta-title">Готовы начать?</h2>
                         <p>Присоединяйтесь к тысячам довольных клиентов</p>
                         <div class="cta-stats">
                             <div class="cta-stat">
@@ -423,8 +441,8 @@
                         </div>
                     </div>
                     <div class="cta-actions">
-                        <button class="btn btn-secondary btn-large">
-                            <i class="fas fa-comments"></i>
+                        <button class="btn btn-secondary btn-large" type="button" id="supportButton">
+                            <i class="fas fa-comments" aria-hidden="true"></i>
                             Написать в поддержку
                         </button>
                     </div>
@@ -433,7 +451,7 @@
         </section>
 
         <!-- Footer -->
-        <footer class="main-footer">
+        <footer class="main-footer" role="contentinfo">
             <div class="container">
                 <div class="footer-content">
                     <div class="footer-main">
@@ -442,18 +460,22 @@
                                 <div class="logo-icon">💱</div>
                                 <span class="logo-text">CryptoExchange</span>
                             </div>
-                            <p>Современный и безопасный обменник криптовалют</p>
+                            <p>Современный и безопасный обменник криптовалют. Быстро, выгодно, надёжно.</p>
                         </div>
                         <div class="footer-info">
                             <div class="footer-contacts">
                                 <h4>Контакты</h4>
-                                <a href="https://t.me/cryptoexchange_support" class="contact-link">
-                                    <i class="fab fa-telegram"></i>
+                                <a href="https://t.me/cryptoexchange_support" class="contact-link" target="_blank" rel="noopener noreferrer">
+                                    <i class="fab fa-telegram" aria-hidden="true"></i>
                                     @cryptoexchange_support
                                 </a>
                                 <div class="contact-link">
-                                    <i class="fas fa-clock"></i>
+                                    <i class="fas fa-clock" aria-hidden="true"></i>
                                     Круглосуточно
+                                </div>
+                                <div class="contact-link">
+                                    <i class="fas fa-envelope" aria-hidden="true"></i>
+                                    support@cryptoexchange.ru
                                 </div>
                             </div>
                         </div>
@@ -464,6 +486,7 @@
                             <a href="#" class="footer-link">Политика конфиденциальности</a>
                             <a href="#" class="footer-link">Условия использования</a>
                             <a href="#" class="footer-link">Помощь</a>
+                            <a href="#" class="footer-link">AML политика</a>
                         </div>
                         <div class="footer-copyright">
                             © 2024 CryptoExchange. Все права защищены.
@@ -475,12 +498,12 @@
     </div>
 
     <!-- Payment Modal -->
-    <div class="modal-overlay" id="paymentModal" style="display: none;">
+    <div class="modal-overlay" id="paymentModal" style="display: none;" aria-hidden="true" role="dialog" aria-labelledby="modalTitle">
         <div class="modal-content">
             <div class="modal-header">
                 <h3 id="modalTitle">Способ оплаты</h3>
-                <button class="modal-close" id="modalClose">
-                    <i class="fas fa-times"></i>
+                <button class="modal-close" id="modalClose" aria-label="Закрыть окно">
+                    <i class="fas fa-times" aria-hidden="true"></i>
                 </button>
             </div>
             <div class="modal-body" id="modalBody">
@@ -490,5 +513,30 @@
     </div>
 
     <script src="app.js"></script>
+
+    <!-- Structured Data for SEO -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "FinancialService",
+        "name": "CryptoExchange",
+        "description": "Быстрый и безопасный обмен USDT на RUB. Мгновенные переводы на карту с лучшим курсом.",
+        "url": "https://cryptoexchange.ru",
+        "telephone": "+7-800-000-00-00",
+        "address": {
+            "@type": "PostalAddress",
+            "addressCountry": "RU"
+        },
+        "serviceType": "Currency Exchange",
+        "currenciesAccepted": "RUB, USDT",
+        "paymentAccepted": "Cryptocurrency, Bank Transfer",
+        "openingHours": "Mo-Su 00:00-24:00",
+        "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": "4.9",
+            "ratingCount": "15000"
+        }
+    }
+    </script>
 </body>
 </html>
