@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💱 CryptoExchange | Обмен USDT/RUB</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app">
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="hero-background">
+                <div class="gradient-orb orb-1"></div>
+                <div class="gradient-orb orb-2"></div>
+            </div>
+            
+            <div class="container">
+                <header class="main-header">
+                    <div class="logo">
+                        <div class="logo-icon">💱</div>
+                        <span class="logo-text">CryptoExchange</span>
+                    </div>
+                    <div class="user-badge" id="userBadge">
+                        <div class="user-avatar" id="userAvatar">👤</div>
+                    </div>
+                </header>
+
+                <div class="hero-content">
+                    <h1 class="hero-title">
+                        Обменяй <span class="gradient-text">USDT</span>
+                        на <span class="gradient-text">RUB</span>
+                    </h1>
+                    <p class="hero-subtitle">Мгновенные переводы на карту с лучшим курсом</p>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-value">1-15 мин</div>
+                            <div class="stat-label">Среднее время</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">0.5%</div>
+                            <div class="stat-label">Комиссия</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">24/7</div>
+                            <div class="stat-label">Поддержка</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Exchange Section -->
+        <section class="exchange-section">
+            <div class="container">
+                <div class="exchange-card">
+                    <div class="card-header">
+                        <h2>Быстрый обмен</h2>
+                        <div class="live-badge">
+                            <div class="live-dot"></div>
+                            LIVE
+                        </div>
+                    </div>
+
+                    <!-- Quick Amount Buttons -->
+                    <div class="quick-amounts">
+                        <div class="quick-amounts-label">Быстрая сумма:</div>
+                        <div class="amount-buttons">
+                            <button class="amount-btn" data-amount="1000">1 000 ₽</button>
+                            <button class="amount-btn" data-amount="5000">5 000 ₽</button>
+                            <button class="amount-btn" data-amount="10000">10 000 ₽</button>
+                            <button class="amount-btn" data-amount="50000">50 000 ₽</button>
+                        </div>
+                    </div>
+
+                    <!-- Exchange Form -->
+                    <div class="exchange-form">
+                        <div class="currency-block you-give">
+                            <div class="block-header">
+                                <span class="block-title">Вы отдаёте</span>
+                                <span class="balance">Баланс: <strong>1,250.50 USDT</strong></span>
+                            </div>
+                            <div class="currency-input">
+                                <div class="input-wrapper">
+                                    <input 
+                                        type="number" 
+                                        class="amount-input" 
+                                        id="giveAmount"
+                                        placeholder="0.00"
+                                        value="1000"
+                                    >
+                                    <div class="currency-select">
+                                        <div class="currency-flag">₿</div>
+                                        <select id="giveCurrency">
+                                            <option value="USDT">USDT</option>
+                                            <option value="RUB">RUB</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="swap-container">
+                            <button class="swap-btn" id="swapBtn">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                    <path d="M7 10L12 15L17 10" stroke="currentColor" stroke-width="2"/>
+                                    <path d="M17 14L12 9L7 14" stroke="currentColor" stroke-width="2"/>
+                                </svg>
+                            </button>
+                        </div>
+
+                        <div class="currency-block you-get">
+                            <div class="block-header">
+                                <span class="block-title">Вы получаете</span>
+                                <span class="balance">Баланс: <strong>115,760.30 ₽</strong></span>
+                            </div>
+                            <div class="currency-input">
+                                <div class="input-wrapper">
+                                    <input 
+                                        type="number" 
+                                        class="amount-input" 
+                                        id="getAmount"
+                                        placeholder="0.00"
+                                        readonly
+                                    >
+                                    <div class="currency-select">
+                                        <div class="currency-flag">₽</div>
+                                        <select id="getCurrency">
+                                            <option value="RUB">RUB</option>
+                                            <option value="USDT">USDT</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Exchange Info -->
+                    <div class="exchange-info">
+                        <div class="info-row">
+                            <span>Курс обмена</span>
+                            <span id="exchangeRate">1 USDT = 90.50 ₽</span>
+                        </div>
+                        <div class="info-row">
+                            <span>Комиссия</span>
+                            <span id="exchangeFee">0.5%</span>
+                        </div>
+                        <div class="info-row total">
+                            <span>Итого к получению</span>
+                            <span class="total-amount" id="totalAmount">90,500.00 ₽</span>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="action-buttons">
+                        <button class="btn btn-primary btn-large" id="exchangeBtn">
+                            <span class="btn-content">
+                                <span class="btn-text">Обменять сейчас</span>
+                                <span class="btn-subtext" id="btnSubtext">90,500.00 ₽</span>
+                            </span>
+                            <div class="btn-arrow">→</div>
+                        </button>
+                        
+                        <div class="quick-buttons">
+                            <button class="quick-btn" id="historyBtn">
+                                <span class="quick-icon">📊</span>
+                                История
+                            </button>
+                            <button class="quick-btn" id="supportBtn">
+                                <span class="quick-icon">💬</span>
+                                Поддержка
+                            </button>
+                            <button class="quick-btn" id="profileBtn">
+                                <span class="quick-icon">👤</span>
+                                Профиль
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Features Grid -->
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">⚡</div>
+                        <h3>Мгновенно</h3>
+                        <p>Обмен занимает от 1 до 15 минут</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🛡️</div>
+                        <h3>Безопасно</h3>
+                        <p>Все операции защищены и зашифрованы</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">💎</div>
+                        <h3>Выгодно</h3>
+                        <p>Лучший курс на рынке с низкой комиссией</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🌍</div>
+                        <h3>Доступно</h3>
+                        <p>Работаем 24/7 по всему миру</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="main-footer">
+            <div class="container">
+                <div class="footer-content">
+                    <div class="footer-logo">
+                        <div class="logo">💱 CryptoExchange</div>
+                        <p>Современный обменник криптовалют</p>
+                    </div>
+                    <div class="footer-links">
+                        <a href="#" class="footer-link">Политика конфиденциальности</a>
+                        <a href="#" class="footer-link">Условия использования</a>
+                        <a href="#" class="footer-link">Поддержка</a>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
