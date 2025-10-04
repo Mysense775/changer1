@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>💱 CryptoExchange | Обмен USDT/RUB</title>
     <meta name="description" content="Быстрый и безопасный обмен USDT на RUB. Мгновенные переводы на карту с лучшим курсом.">
+    <meta name="keywords" content="USDT, RUB, обмен, криптовалюта, Tether, рубли, карта, перевод">
     <link rel="stylesheet" href="styles.css">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -26,13 +27,20 @@
                         <div class="logo-icon">💱</div>
                         <span class="logo-text">CryptoExchange</span>
                     </div>
-                    <div class="header-stats">
-                        <div class="stat-chip">
-                            <i class="fas fa-chart-line"></i>
-                            <span>1 USDT = 90.50 ₽</span>
+                    <div class="header-right">
+                        <div class="header-stats">
+                            <div class="stat-chip">
+                                <i class="fas fa-chart-line"></i>
+                                <span>1 USDT = 90.50 ₽</span>
+                            </div>
+                        </div>
+                        <div class="user-badge" id="userBadge">
+                            <div class="user-avatar" id="userAvatar">👤</div>
                         </div>
                     </div>
                 </header>
+
+                <div class="user-info" id="userInfo"></div>
 
                 <div class="hero-content">
                     <div class="hero-badge">
@@ -65,6 +73,8 @@
         <!-- Exchange Section -->
         <section class="exchange-section">
             <div class="container">
+                <div class="exchange-limits" id="exchangeLimits"></div>
+
                 <div class="exchange-card">
                     <div class="card-header">
                         <h2><i class="fas fa-bolt"></i> Быстрый обмен</h2>
@@ -169,6 +179,9 @@
                         </div>
                     </div>
 
+                    <!-- Balance Error -->
+                    <div class="balance-error" id="balanceError"></div>
+
                     <!-- Quick Amount Buttons -->
                     <div class="quick-amounts">
                         <div class="quick-amounts-label">
@@ -183,8 +196,8 @@
                         </div>
                     </div>
 
-                    <!-- Action Button -->
-                    <div class="action-section">
+                    <!-- Action Buttons -->
+                    <div class="action-buttons">
                         <button class="btn btn-primary btn-large" id="exchangeBtn">
                             <span class="btn-content">
                                 <span class="btn-text">Обменять</span>
@@ -194,6 +207,21 @@
                                 <i class="fas fa-arrow-right"></i>
                             </div>
                         </button>
+                        
+                        <div class="quick-buttons">
+                            <button class="quick-btn" id="historyBtn">
+                                <span class="quick-icon">📊</span>
+                                История
+                            </button>
+                            <button class="quick-btn" id="profileButton">
+                                <span class="quick-icon">👤</span>
+                                Профиль
+                            </button>
+                            <button class="quick-btn" id="supportButton">
+                                <span class="quick-icon">💬</span>
+                                Поддержка
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -387,6 +415,26 @@
                             <p>Минимальная сумма - 500 ₽, максимальная - 500,000 ₽ в сутки. После верификации лимиты увеличиваются.</p>
                         </div>
                     </div>
+                    
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <span>Нужно ли проходить верификацию?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Верификация требуется для операций свыше 60,000 ₽ в сутки. Процесс занимает 5-10 минут.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <span>Как привязан мой Telegram аккаунт?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Ваш Telegram аккаунт автоматически привязывается при первом использовании сервиса. Все операции привязаны к вашему ID.</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -414,7 +462,7 @@
                         </div>
                     </div>
                     <div class="cta-actions">
-                        <button class="btn btn-secondary btn-large" id="supportButton">
+                        <button class="btn btn-secondary btn-large" id="ctaSupportButton">
                             <i class="fas fa-comments"></i>
                             Написать в поддержку
                         </button>
@@ -446,6 +494,10 @@
                                     <i class="fas fa-clock"></i>
                                     Круглосуточно
                                 </div>
+                                <div class="contact-link">
+                                    <i class="fas fa-user-shield"></i>
+                                    Привязано к Telegram
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -455,6 +507,7 @@
                             <a href="#" class="footer-link">Политика конфиденциальности</a>
                             <a href="#" class="footer-link">Условия использования</a>
                             <a href="#" class="footer-link">Помощь</a>
+                            <a href="#" class="footer-link">AML политика</a>
                         </div>
                         <div class="footer-copyright">
                             © 2024 CryptoExchange. Все права защищены.
