@@ -34,21 +34,6 @@
                         на <span class="gradient-text">RUB</span>
                     </h1>
                     <p class="hero-subtitle">Мгновенные переводы на карту с лучшим курсом</p>
-                    
-                    <div class="stats-grid">
-                        <div class="stat-item">
-                            <div class="stat-value">1-15 мин</div>
-                            <div class="stat-label">Среднее время</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-value">0.5%</div>
-                            <div class="stat-label">Комиссия</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-value">24/7</div>
-                            <div class="stat-label">Поддержка</div>
-                        </div>
-                    </div>
                 </div>
             </div>
         </section>
@@ -65,17 +50,67 @@
                         </div>
                     </div>
 
-                    <!-- Operation Type Selector -->
-                    <div class="operation-type">
-                        <div class="operation-tabs">
-                            <button class="operation-tab active" data-operation="buy">
-                                <span class="tab-icon">💳</span>
-                                Купить USDT
-                            </button>
-                            <button class="operation-tab" data-operation="sell">
-                                <span class="tab-icon">💰</span>
-                                Продать USDT
-                            </button>
+                    <!-- Direction Selector -->
+                    <div class="direction-selector">
+                        <button class="dir-btn active" data-direction="buy">
+                            <span class="dir-icon">↗️</span>
+                            <span class="dir-text">RUB → USDT</span>
+                        </button>
+                        <button class="dir-btn" data-direction="sell">
+                            <span class="dir-icon">↘️</span>
+                            <span class="dir-text">USDT → RUB</span>
+                        </button>
+                    </div>
+
+                    <!-- Exchange Form -->
+                    <div class="exchange-form">
+                        <div class="currency-block you-give">
+                            <div class="block-header">
+                                <span class="block-title">Отдаёте</span>
+                                <span class="balance" id="giveBalance">Баланс: 25,430.00 ₽</span>
+                            </div>
+                            <div class="currency-input">
+                                <div class="input-wrapper">
+                                    <input 
+                                        type="number" 
+                                        class="amount-input" 
+                                        id="giveAmount"
+                                        placeholder="0.00"
+                                        value="1000"
+                                    >
+                                    <div class="currency-display">
+                                        <span class="currency-flag" id="giveCurrencyFlag">₽</span>
+                                        <span class="currency-code" id="giveCurrencyCode">RUB</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="swap-container">
+                            <div class="swap-arrow">↓</div>
+                            <div class="rate-display" id="rateDisplay">1 USDT = 90.50 ₽</div>
+                        </div>
+
+                        <div class="currency-block you-get">
+                            <div class="block-header">
+                                <span class="block-title">Получаете</span>
+                                <span class="balance" id="getBalance">Баланс: 1,250.50 USDT</span>
+                            </div>
+                            <div class="currency-input">
+                                <div class="input-wrapper">
+                                    <input 
+                                        type="number" 
+                                        class="amount-input" 
+                                        id="getAmount"
+                                        placeholder="0.00"
+                                        readonly
+                                    >
+                                    <div class="currency-display">
+                                        <span class="currency-flag" id="getCurrencyFlag">₿</span>
+                                        <span class="currency-code" id="getCurrencyCode">USDT</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -83,260 +118,36 @@
                     <div class="quick-amounts">
                         <div class="quick-amounts-label">Быстрая сумма:</div>
                         <div class="amount-buttons">
-                            <button class="amount-btn" data-amount="1000">1 000 ₽</button>
-                            <button class="amount-btn" data-amount="5000">5 000 ₽</button>
-                            <button class="amount-btn" data-amount="10000">10 000 ₽</button>
-                            <button class="amount-btn" data-amount="50000">50 000 ₽</button>
+                            <button class="amount-btn" data-amount="1000">1 000</button>
+                            <button class="amount-btn" data-amount="5000">5 000</button>
+                            <button class="amount-btn" data-amount="10000">10 000</button>
+                            <button class="amount-btn" data-amount="50000">50 000</button>
                         </div>
                     </div>
 
-                    <!-- Exchange Form -->
-                    <div class="exchange-form">
-                        <!-- Buy USDT Section -->
-                        <div class="operation-section active" id="buySection">
-                            <div class="currency-block you-give">
-                                <div class="block-header">
-                                    <span class="block-title">Вы платите</span>
-                                    <span class="balance">Баланс: <strong>25,430.00 ₽</strong></span>
-                                </div>
-                                <div class="currency-input">
-                                    <div class="input-wrapper">
-                                        <input 
-                                            type="number" 
-                                            class="amount-input" 
-                                            id="buyAmount"
-                                            placeholder="0.00"
-                                            value="1000"
-                                        >
-                                        <div class="currency-select">
-                                            <div class="currency-flag">₽</div>
-                                            <span>RUB</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="swap-container">
-                                <div class="swap-arrow">↓</div>
-                            </div>
-
-                            <div class="currency-block you-get">
-                                <div class="block-header">
-                                    <span class="block-title">Вы получаете</span>
-                                    <span class="balance">Баланс: <strong>1,250.50 USDT</strong></span>
-                                </div>
-                                <div class="currency-input">
-                                    <div class="input-wrapper">
-                                        <input 
-                                            type="number" 
-                                            class="amount-input" 
-                                            id="buyGetAmount"
-                                            placeholder="0.00"
-                                            readonly
-                                        >
-                                        <div class="currency-select">
-                                            <div class="currency-flag">₿</div>
-                                            <span>USDT</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Payment Methods -->
-                            <div class="payment-section">
-                                <div class="section-title">Способ оплаты</div>
-                                <div class="payment-methods">
-                                    <div class="payment-method active" data-method="card">
-                                        <div class="method-icon">💳</div>
-                                        <div class="method-info">
-                                            <div class="method-name">Банковская карта</div>
-                                            <div class="method-description">Visa, Mastercard, МИР</div>
-                                        </div>
-                                        <div class="method-check">✓</div>
-                                    </div>
-                                    <div class="payment-method" data-method="sbp">
-                                        <div class="method-icon">⚡</div>
-                                        <div class="method-info">
-                                            <div class="method-name">СБП</div>
-                                            <div class="method-description">Быстрый перевод</div>
-                                        </div>
-                                        <div class="method-check">✓</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Sell USDT Section -->
-                        <div class="operation-section" id="sellSection">
-                            <div class="currency-block you-give">
-                                <div class="block-header">
-                                    <span class="block-title">Вы продаёте</span>
-                                    <span class="balance">Баланс: <strong>1,250.50 USDT</strong></span>
-                                </div>
-                                <div class="currency-input">
-                                    <div class="input-wrapper">
-                                        <input 
-                                            type="number" 
-                                            class="amount-input" 
-                                            id="sellAmount"
-                                            placeholder="0.00"
-                                            value="100"
-                                        >
-                                        <div class="currency-select">
-                                            <div class="currency-flag">₿</div>
-                                            <span>USDT</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="swap-container">
-                                <div class="swap-arrow">↓</div>
-                            </div>
-
-                            <div class="currency-block you-get">
-                                <div class="block-header">
-                                    <span class="block-title">Вы получаете</span>
-                                    <span class="balance">Баланс: <strong>25,430.00 ₽</strong></span>
-                                </div>
-                                <div class="currency-input">
-                                    <div class="input-wrapper">
-                                        <input 
-                                            type="number" 
-                                            class="amount-input" 
-                                            id="sellGetAmount"
-                                            placeholder="0.00"
-                                            readonly
-                                        >
-                                        <div class="currency-select">
-                                            <div class="currency-flag">₽</div>
-                                            <span>RUB</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Card Details for Withdrawal -->
-                            <div class="withdrawal-section">
-                                <div class="section-title">Карта для получения</div>
-                                
-                                <div class="saved-cards">
-                                    <div class="saved-card active">
-                                        <div class="card-icon">💳</div>
-                                        <div class="card-info">
-                                            <div class="card-name">Тинькофф •• 7890</div>
-                                            <div class="card-balance">Основная карта</div>
-                                        </div>
-                                        <div class="card-check">✓</div>
-                                    </div>
-                                    <button class="add-card-btn" id="addCardBtn">
-                                        <span class="add-icon">+</span>
-                                        Добавить карту
-                                    </button>
-                                </div>
-
-                                <!-- New Card Form -->
-                                <div class="new-card-form" id="newCardForm" style="display: none;">
-                                    <div class="form-group">
-                                        <label class="form-label">Номер карты</label>
-                                        <input type="text" class="form-input card-number" 
-                                               placeholder="0000 0000 0000 0000" maxlength="19">
-                                    </div>
-                                    <div class="form-row">
-                                        <div class="form-group">
-                                            <label class="form-label">Срок действия</label>
-                                            <input type="text" class="form-input card-expiry" 
-                                                   placeholder="ММ/ГГ" maxlength="5">
-                                        </div>
-                                        <div class="form-group">
-                                            <label class="form-label">CVC</label>
-                                            <input type="text" class="form-input card-cvc" 
-                                                   placeholder="000" maxlength="3">
-                                        </div>
-                                    </div>
-                                    <button class="btn btn-secondary btn-small" id="saveCardBtn">
-                                        Сохранить карту
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Exchange Info -->
-                    <div class="exchange-info">
-                        <div class="info-row">
-                            <span>Курс обмена</span>
-                            <span id="exchangeRate">1 USDT = 90.50 ₽</span>
-                        </div>
-                        <div class="info-row">
-                            <span>Комиссия</span>
-                            <span id="exchangeFee">0.5%</span>
-                        </div>
-                        <div class="info-row total">
-                            <span>Итого к получению</span>
-                            <span class="total-amount" id="totalAmount">90.50 USDT</span>
-                        </div>
-                    </div>
-
-                    <!-- Action Buttons -->
-                    <div class="action-buttons">
+                    <!-- Action Button -->
+                    <div class="action-section">
                         <button class="btn btn-primary btn-large" id="exchangeBtn">
                             <span class="btn-content">
-                                <span class="btn-text" id="btnText">Купить USDT</span>
-                                <span class="btn-subtext" id="btnSubtext">90.50 USDT</span>
+                                <span class="btn-text">Обменять</span>
+                                <span class="btn-subtext" id="btnSubtext">Получите: 90.50 USDT</span>
                             </span>
                             <div class="btn-arrow">→</div>
                         </button>
-                        
-                        <div class="quick-buttons">
-                            <button class="quick-btn" id="historyBtn">
-                                <span class="quick-icon">📊</span>
-                                История
-                            </button>
-                            <button class="quick-btn" id="supportBtn">
-                                <span class="quick-icon">💬</span>
-                                Поддержка
-                            </button>
-                            <button class="quick-btn" id="profileBtn">
-                                <span class="quick-icon">👤</span>
-                                Профиль
-                            </button>
-                        </div>
                     </div>
                 </div>
 
-                <!-- Instructions -->
-                <div class="instructions-card">
-                    <h3>Как работает обмен?</h3>
-                    <div class="instruction-steps">
-                        <div class="step">
-                            <div class="step-number">1</div>
-                            <div class="step-content">
-                                <h4>Выберите операцию</h4>
-                                <p>Покупка или продажа USDT</p>
-                            </div>
-                        </div>
-                        <div class="step">
-                            <div class="step-number">2</div>
-                            <div class="step-content">
-                                <h4>Укажите сумму</h4>
-                                <p>Введите сумму и способ оплаты</p>
-                            </div>
-                        </div>
-                        <div class="step">
-                            <div class="step-number">3</div>
-                            <div class="step-content">
-                                <h4>Подтвердите</h4>
-                                <p>Проверьте детали и подтвердите операцию</p>
-                            </div>
-                        </div>
-                        <div class="step">
-                            <div class="step-number">4</div>
-                            <div class="step-content">
-                                <h4>Получите средства</h4>
-                                <p>Деньги придут в течение 15 минут</p>
-                            </div>
-                        </div>
+                <!-- Features -->
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">⚡</div>
+                        <h3>Мгновенно</h3>
+                        <p>Обмен за 1-15 минут</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🛡️</div>
+                        <h3>Безопасно</h3>
+                        <p>Все операции защищены</p>
                     </div>
                 </div>
             </div>
@@ -350,14 +161,22 @@
                         <div class="logo">💱 CryptoExchange</div>
                         <p>Современный обменник криптовалют</p>
                     </div>
-                    <div class="footer-links">
-                        <a href="#" class="footer-link">Политика конфиденциальности</a>
-                        <a href="#" class="footer-link">Условия использования</a>
-                        <a href="#" class="footer-link">Поддержка</a>
-                    </div>
                 </div>
             </div>
         </footer>
+    </div>
+
+    <!-- Payment Modal -->
+    <div class="modal-overlay" id="paymentModal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Способ оплаты</h3>
+                <button class="modal-close" id="modalClose">×</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Content will be inserted here -->
+            </div>
+        </div>
     </div>
 
     <script src="app.js"></script>

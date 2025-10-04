@@ -5,8 +5,8 @@ class CryptoExchange {
     constructor() {
         this.currentRate = 90.50;
         this.commission = 0.5;
-        this.currentOperation = 'buy'; // 'buy' or 'sell'
-        this.paymentMethod = 'card';
+        this.currentDirection = 'buy'; // 'buy' or 'sell'
+        this.selectedPaymentMethod = null;
         this.userCards = [
             { id: 1, name: 'Тинькофф •• 7890', type: 'visa', isDefault: true }
         ];
@@ -47,16 +47,15 @@ class CryptoExchange {
     }
 
     setupEventListeners() {
-        // Operation tabs
-        document.querySelectorAll('.operation-tab').forEach(tab => {
-            tab.addEventListener('click', (e) => {
-                this.switchOperation(e.target.dataset.operation);
+        // Direction buttons
+        document.querySelectorAll('.dir-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                this.switchDirection(e.currentTarget.dataset.direction);
             });
         });
 
-        // Amount inputs
-        document.getElementById('buyAmount').addEventListener('input', () => this.calculateExchange());
-        document.getElementById('sellAmount').addEventListener('input', () => this.calculateExchange());
+        // Amount input
+        document.getElementById('giveAmount').addEventListener('input', () => this.calculateExchange());
         
         // Quick amount buttons
         document.querySelectorAll('.amount-btn').forEach(btn => {
@@ -65,70 +64,68 @@ class CryptoExchange {
                 e.target.classList.add('active');
                 
                 const amount = e.target.dataset.amount;
-                if (this.currentOperation === 'buy') {
-                    document.getElementById('buyAmount').value = amount;
-                } else {
-                    document.getElementById('sellAmount').value = amount;
-                }
+                document.getElementById('giveAmount').value = amount;
                 this.calculateExchange();
             });
         });
 
-        // Payment methods
-        document.querySelectorAll('.payment-method').forEach(method => {
-            method.addEventListener('click', (e) => {
-                document.querySelectorAll('.payment-method').forEach(m => m.classList.remove('active'));
-                e.currentTarget.classList.add('active');
-                this.paymentMethod = e.currentTarget.dataset.method;
-            });
-        });
-
-        // Card management
-        document.getElementById('addCardBtn').addEventListener('click', () => this.showCardForm());
-        document.getElementById('saveCardBtn').addEventListener('click', () => this.saveCard());
-
-        // Card input formatting
-        document.querySelector('.card-number')?.addEventListener('input', (e) => this.formatCardNumber(e));
-        document.querySelector('.card-expiry')?.addEventListener('input', (e) => this.formatExpiry(e));
-        document.querySelector('.card-cvc')?.addEventListener('input', (e) => this.formatCVC(e));
-
         // Exchange button
-        document.getElementById('exchangeBtn').addEventListener('click', () => this.executeExchange());
+        document.getElementById('exchangeBtn').addEventListener('click', () => this.startExchange());
         
-        // Quick action buttons
-        document.getElementById('historyBtn').addEventListener('click', () => this.showHistory());
-        document.getElementById('supportBtn').addEventListener('click', () => this.showSupport());
-        document.getElementById('profileBtn').addEventListener('click', () => this.showProfile());
+        // Modal close
+        document.getElementById('modalClose').addEventListener('click', () => this.closeModal());
+        
+        // Overlay click to close
+        document.getElementById('paymentModal').addEventListener('click', (e) => {
+            if (e.target.id === 'paymentModal') this.closeModal();
+        });
     }
 
-    switchOperation(operation) {
-        this.currentOperation = operation;
+    switchDirection(direction) {
+        this.currentDirection = direction;
         
-        // Update tabs
-        document.querySelectorAll('.operation-tab').forEach(tab => {
-            tab.classList.toggle('active', tab.dataset.operation === operation);
+        // Update buttons
+        document.querySelectorAll('.dir-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.direction === direction);
         });
         
-        // Update sections
-        document.querySelectorAll('.operation-section').forEach(section => {
-            section.classList.toggle('active', section.id === `${operation}Section`);
-        });
+        // Update currencies
+        const giveCurrencyFlag = document.getElementById('giveCurrencyFlag');
+        const giveCurrencyCode = document.getElementById('giveCurrencyCode');
+        const getCurrencyFlag = document.getElementById('getCurrencyFlag');
+        const getCurrencyCode = document.getElementById('getCurrencyCode');
+        const giveBalance = document.getElementById('giveBalance');
+        const getBalance = document.getElementById('getBalance');
         
-        // Update button text
-        const btnText = document.getElementById('btnText');
-        btnText.textContent = operation === 'buy' ? 'Купить USDT' : 'Продать USDT';
+        if (direction === 'buy') {
+            giveCurrencyFlag.textContent = '₽';
+            giveCurrencyCode.textContent = 'RUB';
+            getCurrencyFlag.textContent = '₿';
+            getCurrencyCode.textContent = 'USDT';
+            giveBalance.textContent = 'Баланс: 25,430.00 ₽';
+            getBalance.textContent = 'Баланс: 1,250.50 USDT';
+            document.getElementById('giveAmount').value = '1000';
+        } else {
+            giveCurrencyFlag.textContent = '₿';
+            giveCurrencyCode.textContent = 'USDT';
+            getCurrencyFlag.textContent = '₽';
+            getCurrencyCode.textContent = 'RUB';
+            giveBalance.textContent = 'Баланс: 1,250.50 USDT';
+            getBalance.textContent = 'Баланс: 25,430.00 ₽';
+            document.getElementById('giveAmount').value = '100';
+        }
         
+        this.updateRateDisplay();
         this.calculateExchange();
     }
 
     calculateExchange() {
-        let giveAmount, getAmount;
+        const giveAmount = parseFloat(document.getElementById('giveAmount').value) || 0;
+        let getAmount;
         
-        if (this.currentOperation === 'buy') {
-            giveAmount = parseFloat(document.getElementById('buyAmount').value) || 0;
+        if (this.currentDirection === 'buy') {
             getAmount = giveAmount / this.currentRate;
         } else {
-            giveAmount = parseFloat(document.getElementById('sellAmount').value) || 0;
             getAmount = giveAmount * this.currentRate;
         }
 
@@ -140,29 +137,197 @@ class CryptoExchange {
     }
 
     updateDisplay(totalAmount) {
-        const totalAmountElement = document.getElementById('totalAmount');
+        const getAmountInput = document.getElementById('getAmount');
         const btnSubtext = document.getElementById('btnSubtext');
-        const exchangeRate = document.getElementById('exchangeRate');
-        const exchangeFee = document.getElementById('exchangeFee');
-
-        if (this.currentOperation === 'buy') {
-            document.getElementById('buyGetAmount').value = totalAmount.toFixed(2);
-            totalAmountElement.textContent = `${totalAmount.toFixed(2)} USDT`;
-            btnSubtext.textContent = `${totalAmount.toFixed(2)} USDT`;
-            exchangeRate.textContent = `1 USDT = ${this.currentRate.toFixed(2)} ₽`;
+        
+        getAmountInput.value = totalAmount.toFixed(2);
+        
+        if (this.currentDirection === 'buy') {
+            btnSubtext.textContent = `Получите: ${totalAmount.toFixed(2)} USDT`;
         } else {
-            document.getElementById('sellGetAmount').value = totalAmount.toFixed(2);
-            totalAmountElement.textContent = `${totalAmount.toFixed(2)} ₽`;
-            btnSubtext.textContent = `${totalAmount.toFixed(2)} ₽`;
-            exchangeRate.textContent = `1 USDT = ${this.currentRate.toFixed(2)} ₽`;
+            btnSubtext.textContent = `Получите: ${totalAmount.toFixed(2)} ₽`;
         }
-
-        exchangeFee.textContent = `${this.commission}%`;
     }
 
-    showCardForm() {
-        const form = document.getElementById('newCardForm');
-        form.style.display = form.style.display === 'none' ? 'block' : 'none';
+    updateRateDisplay() {
+        const rateDisplay = document.getElementById('rateDisplay');
+        if (this.currentDirection === 'buy') {
+            rateDisplay.textContent = `1 USDT = ${this.currentRate.toFixed(2)} ₽`;
+        } else {
+            rateDisplay.textContent = `1 USDT = ${this.currentRate.toFixed(2)} ₽`;
+        }
+    }
+
+    startExchange() {
+        const giveAmount = parseFloat(document.getElementById('giveAmount').value) || 0;
+        
+        if (giveAmount <= 0) {
+            this.showError('Введите сумму для обмена');
+            return;
+        }
+
+        if (this.currentDirection === 'buy') {
+            this.showPaymentMethods();
+        } else {
+            this.showWithdrawalMethods();
+        }
+    }
+
+    showPaymentMethods() {
+        const modal = document.getElementById('paymentModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalBody = document.getElementById('modalBody');
+        
+        modalTitle.textContent = 'Выберите способ оплаты';
+        modalBody.innerHTML = `
+            <div class="payment-methods">
+                <div class="payment-method" data-method="card">
+                    <div class="method-icon">💳</div>
+                    <div class="method-info">
+                        <div class="method-name">Банковская карта</div>
+                        <div class="method-description">Visa, Mastercard, МИР</div>
+                    </div>
+                    <div class="method-check">✓</div>
+                </div>
+                <div class="payment-method" data-method="sbp">
+                    <div class="method-icon">⚡</div>
+                    <div class="method-info">
+                        <div class="method-name">СБП</div>
+                        <div class="method-description">Быстрый перевод</div>
+                    </div>
+                    <div class="method-check">✓</div>
+                </div>
+            </div>
+            <button class="btn btn-primary" style="margin-top: 20px;" id="confirmPayment">
+                Продолжить
+            </button>
+        `;
+        
+        // Add event listeners to payment methods
+        modalBody.querySelectorAll('.payment-method').forEach(method => {
+            method.addEventListener('click', () => {
+                modalBody.querySelectorAll('.payment-method').forEach(m => m.classList.remove('active'));
+                method.classList.add('active');
+                this.selectedPaymentMethod = method.dataset.method;
+            });
+        });
+        
+        // Confirm button
+        modalBody.querySelector('#confirmPayment').addEventListener('click', () => {
+            if (!this.selectedPaymentMethod) {
+                this.showError('Выберите способ оплаты');
+                return;
+            }
+            this.processExchange();
+        });
+        
+        this.showModal();
+    }
+
+    showWithdrawalMethods() {
+        const modal = document.getElementById('paymentModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalBody = document.getElementById('modalBody');
+        
+        modalTitle.textContent = 'Карта для получения';
+        modalBody.innerHTML = `
+            <div class="saved-cards">
+                ${this.userCards.map(card => `
+                    <div class="saved-card ${card.isDefault ? 'active' : ''}" data-card-id="${card.id}">
+                        <div class="card-icon">💳</div>
+                        <div class="card-info">
+                            <div class="card-name">${card.name}</div>
+                            <div class="card-balance">${card.isDefault ? 'Основная карта' : ''}</div>
+                        </div>
+                        <div class="card-check">✓</div>
+                    </div>
+                `).join('')}
+                <button class="add-card-btn" id="addCardBtn">
+                    <span class="add-icon">+</span>
+                    Добавить карту
+                </button>
+            </div>
+            
+            <div class="new-card-form" id="newCardForm" style="display: none; margin-top: 16px;">
+                <div class="form-group">
+                    <label class="form-label">Номер карты</label>
+                    <input type="text" class="form-input card-number" 
+                           placeholder="0000 0000 0000 0000" maxlength="19">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Срок действия</label>
+                        <input type="text" class="form-input card-expiry" 
+                               placeholder="ММ/ГГ" maxlength="5">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">CVC</label>
+                        <input type="text" class="form-input card-cvc" 
+                               placeholder="000" maxlength="3">
+                    </div>
+                </div>
+                <button class="btn btn-secondary" id="saveCardBtn">
+                    Сохранить карту
+                </button>
+            </div>
+            
+            <button class="btn btn-primary" style="margin-top: 20px;" id="confirmWithdrawal">
+                Подтвердить вывод
+            </button>
+        `;
+        
+        // Add card button
+        modalBody.querySelector('#addCardBtn').addEventListener('click', () => {
+            const form = modalBody.querySelector('#newCardForm');
+            form.style.display = form.style.display === 'none' ? 'block' : 'none';
+        });
+        
+        // Card input formatting
+        const cardNumberInput = modalBody.querySelector('.card-number');
+        const cardExpiryInput = modalBody.querySelector('.card-expiry');
+        const cardCVCInput = modalBody.querySelector('.card-cvc');
+        
+        if (cardNumberInput) {
+            cardNumberInput.addEventListener('input', (e) => this.formatCardNumber(e));
+            cardExpiryInput.addEventListener('input', (e) => this.formatExpiry(e));
+            cardCVCInput.addEventListener('input', (e) => this.formatCVC(e));
+        }
+        
+        // Save card button
+        modalBody.querySelector('#saveCardBtn')?.addEventListener('click', () => {
+            this.saveCard(modalBody);
+        });
+        
+        // Confirm withdrawal
+        modalBody.querySelector('#confirmWithdrawal').addEventListener('click', () => {
+            const selectedCard = modalBody.querySelector('.saved-card.active');
+            if (!selectedCard && !modalBody.querySelector('#newCardForm').style.display === 'block') {
+                this.showError('Выберите карту для вывода');
+                return;
+            }
+            this.processExchange();
+        });
+        
+        // Card selection
+        modalBody.querySelectorAll('.saved-card').forEach(card => {
+            card.addEventListener('click', () => {
+                modalBody.querySelectorAll('.saved-card').forEach(c => c.classList.remove('active'));
+                card.classList.add('active');
+            });
+        });
+        
+        this.showModal();
+    }
+
+    showModal() {
+        document.getElementById('paymentModal').style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+
+    closeModal() {
+        document.getElementById('paymentModal').style.display = 'none';
+        document.body.style.overflow = 'auto';
+        this.selectedPaymentMethod = null;
     }
 
     formatCardNumber(e) {
@@ -187,35 +352,28 @@ class CryptoExchange {
         e.target.value = value;
     }
 
-    saveCard() {
-        const cardNumber = document.querySelector('.card-number').value;
-        const cardExpiry = document.querySelector('.card-expiry').value;
-        const cardCVC = document.querySelector('.card-cvc').value;
+    saveCard(modalBody) {
+        const cardNumber = modalBody.querySelector('.card-number').value;
+        const cardExpiry = modalBody.querySelector('.card-expiry').value;
+        const cardCVC = modalBody.querySelector('.card-cvc').value;
 
         if (!this.validateCard(cardNumber, cardExpiry, cardCVC)) {
             this.showError('Пожалуйста, проверьте данные карты');
             return;
         }
 
-        // Simulate API call to save card
+        // Simulate saving card
         const lastFour = cardNumber.replace(/\s/g, '').slice(-4);
         const newCard = {
             id: Date.now(),
             name: `Карта •• ${lastFour}`,
             type: this.getCardType(cardNumber),
-            isDefault: this.userCards.length === 0
+            isDefault: false
         };
 
         this.userCards.push(newCard);
         this.showSuccess('Карта успешно добавлена!');
-        
-        // Reset form
-        document.getElementById('newCardForm').style.display = 'none';
-        document.querySelector('.card-number').value = '';
-        document.querySelector('.card-expiry').value = '';
-        document.querySelector('.card-cvc').value = '';
-
-        this.updateSavedCards();
+        this.closeModal();
     }
 
     validateCard(number, expiry, cvc) {
@@ -233,36 +391,10 @@ class CryptoExchange {
         return 'unknown';
     }
 
-    updateSavedCards() {
-        // Update saved cards list in UI
-        const savedCardsContainer = document.querySelector('.saved-cards');
-        // Implementation for dynamic cards update
-    }
-
-    executeExchange() {
-        let giveAmount, getAmount, currency;
+    processExchange() {
+        const giveAmount = document.getElementById('giveAmount').value;
+        const getAmount = document.getElementById('getAmount').value;
         
-        if (this.currentOperation === 'buy') {
-            giveAmount = document.getElementById('buyAmount').value;
-            getAmount = document.getElementById('buyGetAmount').value;
-            currency = 'USDT';
-        } else {
-            giveAmount = document.getElementById('sellAmount').value;
-            getAmount = document.getElementById('sellGetAmount').value;
-            currency = 'RUB';
-            
-            // Check if card is selected for withdrawal
-            if (!this.userCards.length) {
-                this.showError('Пожалуйста, добавьте карту для вывода средств');
-                return;
-            }
-        }
-
-        if (!giveAmount || parseFloat(giveAmount) <= 0) {
-            this.showError('Введите сумму для обмена');
-            return;
-        }
-
         const exchangeBtn = document.getElementById('exchangeBtn');
         const originalHTML = exchangeBtn.innerHTML;
         
@@ -277,35 +409,27 @@ class CryptoExchange {
 
         // Simulate API call
         setTimeout(() => {
-            const operationText = this.currentOperation === 'buy' ? 'покупки' : 'продажи';
+            const operation = this.currentDirection === 'buy' ? 'покупки' : 'продажи';
+            const fromCurrency = this.currentDirection === 'buy' ? '₽' : 'USDT';
+            const toCurrency = this.currentDirection === 'buy' ? 'USDT' : '₽';
+            
             this.showSuccess(
-                `Заявка на ${operationText} создана!`, 
-                `${giveAmount} ${this.currentOperation === 'buy' ? '₽' : 'USDT'} → ${getAmount} ${currency}`
+                `Заявка на ${operation} создана!`, 
+                `${giveAmount} ${fromCurrency} → ${getAmount} ${toCurrency}`
             );
             
             exchangeBtn.innerHTML = originalHTML;
             exchangeBtn.disabled = false;
+            this.closeModal();
             
             // Reset form
-            if (this.currentOperation === 'buy') {
-                document.getElementById('buyAmount').value = '1000';
+            if (this.currentDirection === 'buy') {
+                document.getElementById('giveAmount').value = '1000';
             } else {
-                document.getElementById('sellAmount').value = '100';
+                document.getElementById('giveAmount').value = '100';
             }
             this.calculateExchange();
         }, 2000);
-    }
-
-    showHistory() {
-        tg.showAlert('История операций будет доступна в следующем обновлении!');
-    }
-
-    showSupport() {
-        tg.openTelegramLink('https://t.me/cryptoexchange_support');
-    }
-
-    showProfile() {
-        tg.showAlert('Раздел профиля будет доступен в следующем обновлении!');
     }
 
     showError(message) {
