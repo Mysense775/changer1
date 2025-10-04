@@ -10,6 +10,7 @@ class CryptoExchange {
         this.userCards = [
             { id: 1, name: 'Тинькофф •• 7890', type: 'visa', isDefault: true }
         ];
+        this.walletAddress = 'XXXYYYZZZ'; // Наш кошелёк TRC-20
         this.init();
     }
 
@@ -69,6 +70,11 @@ class CryptoExchange {
             });
         });
 
+        // Copy wallet button
+        document.getElementById('copyWalletBtn')?.addEventListener('click', () => {
+            this.copyWalletAddress();
+        });
+
         // Exchange button
         document.getElementById('exchangeBtn').addEventListener('click', () => this.startExchange());
         
@@ -78,6 +84,19 @@ class CryptoExchange {
         // Overlay click to close
         document.getElementById('paymentModal').addEventListener('click', (e) => {
             if (e.target.id === 'paymentModal') this.closeModal();
+        });
+
+        // FAQ functionality
+        document.querySelectorAll('.faq-question').forEach(question => {
+            question.addEventListener('click', () => {
+                const item = question.parentElement;
+                item.classList.toggle('active');
+            });
+        });
+
+        // Support button
+        document.querySelector('.btn-secondary')?.addEventListener('click', () => {
+            tg.openTelegramLink('https://t.me/cryptoexchange_support');
         });
     }
 
@@ -89,30 +108,33 @@ class CryptoExchange {
             btn.classList.toggle('active', btn.dataset.direction === direction);
         });
         
-        // Update currencies
+        // Update currencies and balances
         const giveCurrencyFlag = document.getElementById('giveCurrencyFlag');
         const giveCurrencyCode = document.getElementById('giveCurrencyCode');
         const getCurrencyFlag = document.getElementById('getCurrencyFlag');
         const getCurrencyCode = document.getElementById('getCurrencyCode');
         const giveBalance = document.getElementById('giveBalance');
         const getBalance = document.getElementById('getBalance');
+        const walletInfo = document.getElementById('walletInfo');
         
         if (direction === 'buy') {
             giveCurrencyFlag.textContent = '₽';
             giveCurrencyCode.textContent = 'RUB';
             getCurrencyFlag.textContent = '₿';
             getCurrencyCode.textContent = 'USDT';
-            giveBalance.textContent = 'Баланс: 25,430.00 ₽';
-            getBalance.textContent = 'Баланс: 1,250.50 USDT';
+            giveBalance.innerHTML = '<i class="fas fa-wallet"></i> Баланс: 25,430.00 ₽';
+            getBalance.innerHTML = '<i class="fas fa-wallet"></i> Баланс: 1,250.50 USDT';
             document.getElementById('giveAmount').value = '1000';
+            walletInfo.style.display = 'none';
         } else {
             giveCurrencyFlag.textContent = '₿';
             giveCurrencyCode.textContent = 'USDT';
             getCurrencyFlag.textContent = '₽';
             getCurrencyCode.textContent = 'RUB';
-            giveBalance.textContent = 'Баланс: 1,250.50 USDT';
-            getBalance.textContent = 'Баланс: 25,430.00 ₽';
+            giveBalance.innerHTML = '<i class="fas fa-wallet"></i> Баланс: 1,250.50 USDT';
+            getBalance.innerHTML = '<i class="fas fa-wallet"></i> Баланс: 25,430.00 ₽';
             document.getElementById('giveAmount').value = '100';
+            walletInfo.style.display = 'block';
         }
         
         this.updateRateDisplay();
@@ -152,10 +174,74 @@ class CryptoExchange {
     updateRateDisplay() {
         const rateDisplay = document.getElementById('rateDisplay');
         if (this.currentDirection === 'buy') {
-            rateDisplay.textContent = `1 USDT = ${this.currentRate.toFixed(2)} ₽`;
+            rateDisplay.innerHTML = '<i class="fas fa-sync-alt"></i> 1 USDT = 90.50 ₽';
         } else {
-            rateDisplay.textContent = `1 USDT = ${this.currentRate.toFixed(2)} ₽`;
+            rateDisplay.innerHTML = '<i class="fas fa-sync-alt"></i> 1 USDT = 90.50 ₽';
         }
+    }
+
+    copyWalletAddress() {
+        const copyBtn = document.getElementById('copyWalletBtn');
+        
+        // Copy to clipboard
+        navigator.clipboard.writeText(this.walletAddress).then(() => {
+            // Show success state
+            copyBtn.classList.add('copied');
+            this.showToast('Адрес скопирован!');
+            
+            // Reset button after 2 seconds
+            setTimeout(() => {
+                copyBtn.classList.remove('copied');
+            }, 2000);
+        }).catch(() => {
+            // Fallback for older browsers
+            const textArea = document.createElement('textarea');
+            textArea.value = this.walletAddress;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            
+            copyBtn.classList.add('copied');
+            this.showToast('Адрес скопирован!');
+            
+            setTimeout(() => {
+                copyBtn.classList.remove('copied');
+            }, 2000);
+        });
+    }
+
+    showToast(message) {
+        // Remove existing toast
+        const existingToast = document.querySelector('.toast');
+        if (existingToast) {
+            existingToast.remove();
+        }
+        
+        // Create new toast
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.innerHTML = `
+            <i class="fas fa-check-circle"></i>
+            <span class="toast-message">${message}</span>
+        `;
+        
+        document.body.appendChild(toast);
+        
+        // Show toast
+        setTimeout(() => {
+            toast.classList.add('show');
+        }, 100);
+        
+        // Hide toast after 3 seconds
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    toast.parentNode.removeChild(toast);
+                }
+            }, 300);
+        }, 3000);
     }
 
     startExchange() {
@@ -181,7 +267,7 @@ class CryptoExchange {
         modalTitle.textContent = 'Выберите способ оплаты';
         modalBody.innerHTML = `
             <div class="payment-methods">
-                <div class="payment-method" data-method="card">
+                <div class="payment-method active" data-method="card">
                     <div class="method-icon">💳</div>
                     <div class="method-info">
                         <div class="method-name">Банковская карта</div>
@@ -271,6 +357,23 @@ class CryptoExchange {
                 </button>
             </div>
             
+            <div class="wallet-info" style="margin-top: 20px;">
+                <div class="wallet-header">
+                    <i class="fas fa-wallet"></i>
+                    <span>Переведите USDT на наш кошелёк</span>
+                </div>
+                <div class="wallet-address">
+                    <code class="address-code">${this.walletAddress}</code>
+                    <button class="copy-btn" id="modalCopyBtn">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+                <div class="wallet-note">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span>Переводите USDT только по сети TRC-20</span>
+                </div>
+            </div>
+            
             <button class="btn btn-primary" style="margin-top: 20px;" id="confirmWithdrawal">
                 Подтвердить вывод
             </button>
@@ -298,10 +401,15 @@ class CryptoExchange {
             this.saveCard(modalBody);
         });
         
+        // Copy wallet button in modal
+        modalBody.querySelector('#modalCopyBtn')?.addEventListener('click', () => {
+            this.copyWalletAddress();
+        });
+        
         // Confirm withdrawal
         modalBody.querySelector('#confirmWithdrawal').addEventListener('click', () => {
             const selectedCard = modalBody.querySelector('.saved-card.active');
-            if (!selectedCard && !modalBody.querySelector('#newCardForm').style.display === 'block') {
+            if (!selectedCard && modalBody.querySelector('#newCardForm').style.display !== 'block') {
                 this.showError('Выберите карту для вывода');
                 return;
             }
@@ -451,3 +559,51 @@ class CryptoExchange {
 document.addEventListener('DOMContentLoaded', () => {
     new CryptoExchange();
 });
+
+// Add service worker for PWA capabilities (optional)
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+        navigator.serviceWorker.register('/sw.js').then(function(registration) {
+            console.log('ServiceWorker registration successful with scope: ', registration.scope);
+        }, function(err) {
+            console.log('ServiceWorker registration failed: ', err);
+        });
+    });
+}
+
+// Handle page visibility changes
+document.addEventListener('visibilitychange', function() {
+    if (!document.hidden) {
+        // Page became visible, you might want to refresh rates
+        console.log('Page is visible');
+    }
+});
+
+// Prevent zoom on mobile
+document.addEventListener('touchstart', function(event) {
+    if (event.touches.length > 1) {
+        event.preventDefault();
+    }
+}, { passive: false });
+
+let lastTouchEnd = 0;
+document.addEventListener('touchend', function(event) {
+    const now = (new Date()).getTime();
+    if (now - lastTouchEnd <= 300) {
+        event.preventDefault();
+    }
+    lastTouchEnd = now;
+}, false);
+
+// Handle orientation changes
+window.addEventListener('orientationchange', function() {
+    // You might want to adjust layout on orientation change
+    setTimeout(() => {
+        window.scrollTo(0, 0);
+    }, 100);
+});
+
+// Export for potential module usage
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = CryptoExchange;
+}
