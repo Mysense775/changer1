@@ -5,76 +5,104 @@ class CryptoExchange {
     constructor() {
         this.currentRate = 90.50;
         this.commission = 0.5;
-        this.currentDirection = 'buy'; // 'buy' or 'sell'
+        this.currentDirection = 'buy';
         this.selectedPaymentMethod = null;
         this.userCards = [
             { id: 1, name: 'Тинькофф •• 7890', type: 'visa', isDefault: true }
         ];
-        this.walletAddress = 'XXXYYYZZZ'; // Наш кошелёк TRC-20
+        this.walletAddress = 'XXXYYYZZZ';
+        
         this.init();
     }
 
     init() {
-        console.log('Initializing CryptoExchange...');
-        tg.ready();
-        tg.expand();
+        console.log('🚀 Initializing CryptoExchange...');
+        
+        // Initialize Telegram WebApp
+        if (typeof tg !== 'undefined') {
+            tg.ready();
+            tg.expand();
+        }
         
         this.setupTheme();
         this.setupUserInfo();
         this.setupEventListeners();
         this.calculateExchange();
+        
+        // Hide wallet info initially
+        const walletInfo = document.getElementById('walletInfo');
+        if (walletInfo) {
+            walletInfo.style.display = 'none';
+        }
+        
+        // Hide modal initially
+        const modal = document.getElementById('paymentModal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
+        
+        console.log('✅ CryptoExchange initialized successfully');
     }
 
     setupTheme() {
-        if (tg.colorScheme === 'dark') {
+        if (typeof tg !== 'undefined' && tg.colorScheme === 'dark') {
             document.body.style.setProperty('--background', '#0F0F0F');
             document.body.style.setProperty('--surface', '#1A1A1A');
-        } else {
-            document.body.style.setProperty('--background', '#FFFFFF');
-            document.body.style.setProperty('--surface', '#F8FAFC');
-            document.body.style.setProperty('--text-primary', '#1F2937');
         }
     }
 
     setupUserInfo() {
-        const user = tg.initDataUnsafe?.user;
-        const userBadge = document.getElementById('userBadge');
-        
-        if (user && user.photo_url) {
-            userBadge.innerHTML = `
-                <img src="${user.photo_url}" alt="Avatar" class="user-avatar" 
-                     style="width: 40px; height: 40px; border-radius: 50%;">
-            `;
+        if (typeof tg !== 'undefined') {
+            const user = tg.initDataUnsafe?.user;
+            const userBadge = document.getElementById('userBadge');
+            
+            if (user && user.photo_url && userBadge) {
+                userBadge.innerHTML = `
+                    <img src="${user.photo_url}" alt="Avatar" class="user-avatar" 
+                         style="width: 40px; height: 40px; border-radius: 50%;">
+                `;
+            }
         }
     }
 
     setupEventListeners() {
-        console.log('Setting up event listeners...');
+        console.log('🔧 Setting up event listeners...');
         
         // Direction buttons
-        document.querySelectorAll('.dir-btn').forEach(btn => {
+        const dirButtons = document.querySelectorAll('.dir-btn');
+        dirButtons.forEach(btn => {
             btn.addEventListener('click', (e) => {
-                console.log('Direction button clicked:', e.currentTarget.dataset.direction);
-                this.switchDirection(e.currentTarget.dataset.direction);
+                const direction = e.currentTarget.getAttribute('data-direction');
+                console.log('🔄 Switching direction to:', direction);
+                this.switchDirection(direction);
             });
         });
 
         // Amount input
-        document.getElementById('giveAmount').addEventListener('input', (e) => {
-            console.log('Amount input changed:', e.target.value);
-            this.calculateExchange();
-        });
+        const giveAmountInput = document.getElementById('giveAmount');
+        if (giveAmountInput) {
+            giveAmountInput.addEventListener('input', () => {
+                this.calculateExchange();
+            });
+        }
         
         // Quick amount buttons
-        document.querySelectorAll('.amount-btn').forEach(btn => {
+        const amountButtons = document.querySelectorAll('.amount-btn');
+        amountButtons.forEach(btn => {
             btn.addEventListener('click', (e) => {
-                console.log('Quick amount clicked:', e.target.dataset.amount);
-                document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('active'));
+                const amount = e.target.getAttribute('data-amount');
+                console.log('💰 Quick amount selected:', amount);
+                
+                // Remove active class from all buttons
+                amountButtons.forEach(b => b.classList.remove('active'));
+                // Add active class to clicked button
                 e.target.classList.add('active');
                 
-                const amount = e.target.dataset.amount;
-                document.getElementById('giveAmount').value = amount;
-                this.calculateExchange();
+                // Set amount in input
+                if (giveAmountInput) {
+                    giveAmountInput.value = amount;
+                    this.calculateExchange();
+                }
             });
         });
 
@@ -82,33 +110,39 @@ class CryptoExchange {
         const copyWalletBtn = document.getElementById('copyWalletBtn');
         if (copyWalletBtn) {
             copyWalletBtn.addEventListener('click', () => {
-                console.log('Copy wallet button clicked');
                 this.copyWalletAddress();
             });
         }
 
         // Exchange button
-        document.getElementById('exchangeBtn').addEventListener('click', () => {
-            console.log('Exchange button clicked');
-            this.startExchange();
-        });
+        const exchangeBtn = document.getElementById('exchangeBtn');
+        if (exchangeBtn) {
+            exchangeBtn.addEventListener('click', () => {
+                this.startExchange();
+            });
+        }
         
         // Modal close
-        document.getElementById('modalClose').addEventListener('click', () => {
-            console.log('Modal close clicked');
-            this.closeModal();
-        });
+        const modalClose = document.getElementById('modalClose');
+        if (modalClose) {
+            modalClose.addEventListener('click', () => {
+                this.closeModal();
+            });
+        }
         
         // Overlay click to close
-        document.getElementById('paymentModal').addEventListener('click', (e) => {
-            if (e.target.id === 'paymentModal') {
-                console.log('Modal overlay clicked');
-                this.closeModal();
-            }
-        });
+        const paymentModal = document.getElementById('paymentModal');
+        if (paymentModal) {
+            paymentModal.addEventListener('click', (e) => {
+                if (e.target.id === 'paymentModal') {
+                    this.closeModal();
+                }
+            });
+        }
 
         // FAQ functionality
-        document.querySelectorAll('.faq-question').forEach(question => {
+        const faqQuestions = document.querySelectorAll('.faq-question');
+        faqQuestions.forEach(question => {
             question.addEventListener('click', () => {
                 const item = question.parentElement;
                 item.classList.toggle('active');
@@ -119,23 +153,29 @@ class CryptoExchange {
         const supportButton = document.getElementById('supportButton');
         if (supportButton) {
             supportButton.addEventListener('click', () => {
-                console.log('Support button clicked');
-                tg.openTelegramLink('https://t.me/cryptoexchange_support');
+                if (typeof tg !== 'undefined') {
+                    tg.openTelegramLink('https://t.me/cryptoexchange_support');
+                } else {
+                    window.open('https://t.me/cryptoexchange_support', '_blank');
+                }
             });
         }
 
-        console.log('Event listeners setup complete');
+        console.log('✅ Event listeners setup complete');
     }
 
     switchDirection(direction) {
-        console.log('Switching direction to:', direction);
         this.currentDirection = direction;
         
         // Update buttons
-        document.querySelectorAll('.dir-btn').forEach(btn => {
-            const isActive = btn.dataset.direction === direction;
-            btn.classList.toggle('active', isActive);
-            btn.setAttribute('aria-pressed', isActive);
+        const dirButtons = document.querySelectorAll('.dir-btn');
+        dirButtons.forEach(btn => {
+            const btnDirection = btn.getAttribute('data-direction');
+            if (btnDirection === direction) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
         });
         
         // Update currencies and balances
@@ -148,22 +188,30 @@ class CryptoExchange {
         const walletInfo = document.getElementById('walletInfo');
         
         if (direction === 'buy') {
-            giveCurrencyFlag.textContent = '₽';
-            giveCurrencyCode.textContent = 'RUB';
-            getCurrencyFlag.textContent = '₿';
-            getCurrencyCode.textContent = 'USDT';
-            giveBalance.innerHTML = '<i class="fas fa-wallet"></i> Баланс: 25,430.00 ₽';
-            getBalance.innerHTML = '<i class="fas fa-wallet"></i> Баланс: 1,250.50 USDT';
-            document.getElementById('giveAmount').value = '1000';
+            // RUB → USDT
+            if (giveCurrencyFlag) giveCurrencyFlag.textContent = '₽';
+            if (giveCurrencyCode) giveCurrencyCode.textContent = 'RUB';
+            if (getCurrencyFlag) getCurrencyFlag.textContent = '₿';
+            if (getCurrencyCode) getCurrencyCode.textContent = 'USDT';
+            if (giveBalance) giveBalance.innerHTML = '<i class="fas fa-wallet"></i> Баланс: 25,430.00 ₽';
+            if (getBalance) getBalance.innerHTML = '<i class="fas fa-wallet"></i> Баланс: 1,250.50 USDT';
+            
+            const giveAmountInput = document.getElementById('giveAmount');
+            if (giveAmountInput) giveAmountInput.value = '1000';
+            
             if (walletInfo) walletInfo.style.display = 'none';
         } else {
-            giveCurrencyFlag.textContent = '₿';
-            giveCurrencyCode.textContent = 'USDT';
-            getCurrencyFlag.textContent = '₽';
-            getCurrencyCode.textContent = 'RUB';
-            giveBalance.innerHTML = '<i class="fas fa-wallet"></i> Баланс: 1,250.50 USDT';
-            getBalance.innerHTML = '<i class="fas fa-wallet"></i> Баланс: 25,430.00 ₽';
-            document.getElementById('giveAmount').value = '100';
+            // USDT → RUB
+            if (giveCurrencyFlag) giveCurrencyFlag.textContent = '₿';
+            if (giveCurrencyCode) giveCurrencyCode.textContent = 'USDT';
+            if (getCurrencyFlag) getCurrencyFlag.textContent = '₽';
+            if (getCurrencyCode) getCurrencyCode.textContent = 'RUB';
+            if (giveBalance) giveBalance.innerHTML = '<i class="fas fa-wallet"></i> Баланс: 1,250.50 USDT';
+            if (getBalance) getBalance.innerHTML = '<i class="fas fa-wallet"></i> Баланс: 25,430.00 ₽';
+            
+            const giveAmountInput = document.getElementById('giveAmount');
+            if (giveAmountInput) giveAmountInput.value = '100';
+            
             if (walletInfo) walletInfo.style.display = 'block';
         }
         
@@ -172,27 +220,22 @@ class CryptoExchange {
     }
 
     calculateExchange() {
-        const giveAmount = parseFloat(document.getElementById('giveAmount').value) || 0;
-        console.log('Calculating exchange for amount:', giveAmount);
+        const giveAmountInput = document.getElementById('giveAmount');
+        const giveAmount = parseFloat(giveAmountInput?.value) || 0;
         
         let getAmount;
         
         if (this.currentDirection === 'buy') {
+            // RUB to USDT: divide by rate
             getAmount = giveAmount / this.currentRate;
         } else {
+            // USDT to RUB: multiply by rate
             getAmount = giveAmount * this.currentRate;
         }
 
         // Apply commission
         const commissionAmount = getAmount * (this.commission / 100);
         const totalAmount = getAmount - commissionAmount;
-
-        console.log('Calculated result:', {
-            giveAmount,
-            getAmount,
-            commissionAmount,
-            totalAmount
-        });
 
         this.updateDisplay(totalAmount);
     }
@@ -210,45 +253,27 @@ class CryptoExchange {
             } else {
                 btnSubtext.textContent = `Получите: ${formattedAmount} ₽`;
             }
-            
-            console.log('Display updated:', {
-                getAmount: formattedAmount,
-                btnSubtext: btnSubtext.textContent
-            });
-        } else {
-            console.error('Required elements not found:', {
-                getAmountInput: !!getAmountInput,
-                btnSubtext: !!btnSubtext
-            });
         }
     }
 
     updateRateDisplay() {
         const rateDisplay = document.getElementById('rateDisplay');
         if (rateDisplay) {
-            if (this.currentDirection === 'buy') {
-                rateDisplay.innerHTML = '<i class="fas fa-sync-alt"></i> 1 USDT = ' + this.currentRate.toFixed(2) + ' ₽';
-            } else {
-                rateDisplay.innerHTML = '<i class="fas fa-sync-alt"></i> 1 USDT = ' + this.currentRate.toFixed(2) + ' ₽';
-            }
+            rateDisplay.innerHTML = `<i class="fas fa-sync-alt"></i> 1 USDT = ${this.currentRate.toFixed(2)} ₽`;
         }
     }
 
     copyWalletAddress() {
         const copyBtn = document.getElementById('copyWalletBtn');
         
-        // Copy to clipboard
         navigator.clipboard.writeText(this.walletAddress).then(() => {
-            // Show success state
             copyBtn.classList.add('copied');
             this.showToast('Адрес скопирован!');
             
-            // Reset button after 2 seconds
             setTimeout(() => {
                 copyBtn.classList.remove('copied');
             }, 2000);
-        }).catch((err) => {
-            console.error('Failed to copy:', err);
+        }).catch(() => {
             // Fallback for older browsers
             const textArea = document.createElement('textarea');
             textArea.value = this.walletAddress;
@@ -267,13 +292,11 @@ class CryptoExchange {
     }
 
     showToast(message) {
-        // Remove existing toast
         const existingToast = document.querySelector('.toast');
         if (existingToast) {
             existingToast.remove();
         }
         
-        // Create new toast
         const toast = document.createElement('div');
         toast.className = 'toast';
         toast.innerHTML = `
@@ -283,25 +306,21 @@ class CryptoExchange {
         
         document.body.appendChild(toast);
         
-        // Show toast
         setTimeout(() => {
             toast.classList.add('show');
         }, 100);
         
-        // Hide toast after 3 seconds
         setTimeout(() => {
             toast.classList.remove('show');
             setTimeout(() => {
-                if (toast.parentNode) {
-                    toast.parentNode.removeChild(toast);
-                }
+                toast.remove();
             }, 300);
         }, 3000);
     }
 
     startExchange() {
-        const giveAmount = parseFloat(document.getElementById('giveAmount').value) || 0;
-        console.log('Starting exchange with amount:', giveAmount);
+        const giveAmountInput = document.getElementById('giveAmount');
+        const giveAmount = parseFloat(giveAmountInput?.value) || 0;
         
         if (giveAmount <= 0) {
             this.showError('Введите сумму для обмена');
@@ -316,10 +335,11 @@ class CryptoExchange {
     }
 
     showPaymentMethods() {
-        console.log('Showing payment methods');
         const modal = document.getElementById('paymentModal');
         const modalTitle = document.getElementById('modalTitle');
         const modalBody = document.getElementById('modalBody');
+        
+        if (!modal || !modalTitle || !modalBody) return;
         
         modalTitle.textContent = 'Выберите способ оплаты';
         modalBody.innerHTML = `
@@ -351,29 +371,31 @@ class CryptoExchange {
             method.addEventListener('click', () => {
                 modalBody.querySelectorAll('.payment-method').forEach(m => m.classList.remove('active'));
                 method.classList.add('active');
-                this.selectedPaymentMethod = method.dataset.method;
-                console.log('Selected payment method:', this.selectedPaymentMethod);
+                this.selectedPaymentMethod = method.getAttribute('data-method');
             });
         });
         
         // Confirm button
-        modalBody.querySelector('#confirmPayment').addEventListener('click', () => {
-            console.log('Confirm payment clicked');
-            if (!this.selectedPaymentMethod) {
-                this.showError('Выберите способ оплаты');
-                return;
-            }
-            this.processExchange();
-        });
+        const confirmBtn = modalBody.querySelector('#confirmPayment');
+        if (confirmBtn) {
+            confirmBtn.addEventListener('click', () => {
+                if (!this.selectedPaymentMethod) {
+                    this.showError('Выберите способ оплаты');
+                    return;
+                }
+                this.processExchange();
+            });
+        }
         
         this.showModal();
     }
 
     showWithdrawalMethods() {
-        console.log('Showing withdrawal methods');
         const modal = document.getElementById('paymentModal');
         const modalTitle = document.getElementById('modalTitle');
         const modalBody = document.getElementById('modalBody');
+        
+        if (!modal || !modalTitle || !modalBody) return;
         
         modalTitle.textContent = 'Карта для получения';
         modalBody.innerHTML = `
@@ -440,10 +462,15 @@ class CryptoExchange {
         `;
         
         // Add card button
-        modalBody.querySelector('#addCardBtn').addEventListener('click', () => {
-            const form = modalBody.querySelector('#newCardForm');
-            form.style.display = form.style.display === 'none' ? 'block' : 'none';
-        });
+        const addCardBtn = modalBody.querySelector('#addCardBtn');
+        if (addCardBtn) {
+            addCardBtn.addEventListener('click', () => {
+                const form = modalBody.querySelector('#newCardForm');
+                if (form) {
+                    form.style.display = form.style.display === 'none' ? 'block' : 'none';
+                }
+            });
+        }
         
         // Card input formatting
         const cardNumberInput = modalBody.querySelector('.card-number');
@@ -452,7 +479,11 @@ class CryptoExchange {
         
         if (cardNumberInput) {
             cardNumberInput.addEventListener('input', (e) => this.formatCardNumber(e));
+        }
+        if (cardExpiryInput) {
             cardExpiryInput.addEventListener('input', (e) => this.formatExpiry(e));
+        }
+        if (cardCVCInput) {
             cardCVCInput.addEventListener('input', (e) => this.formatCVC(e));
         }
         
@@ -473,15 +504,18 @@ class CryptoExchange {
         }
         
         // Confirm withdrawal
-        modalBody.querySelector('#confirmWithdrawal').addEventListener('click', () => {
-            const selectedCard = modalBody.querySelector('.saved-card.active');
-            const newCardForm = modalBody.querySelector('#newCardForm');
-            if (!selectedCard && newCardForm.style.display !== 'block') {
-                this.showError('Выберите карту для вывода');
-                return;
-            }
-            this.processExchange();
-        });
+        const confirmWithdrawal = modalBody.querySelector('#confirmWithdrawal');
+        if (confirmWithdrawal) {
+            confirmWithdrawal.addEventListener('click', () => {
+                const selectedCard = modalBody.querySelector('.saved-card.active');
+                const newCardForm = modalBody.querySelector('#newCardForm');
+                if (!selectedCard && (!newCardForm || newCardForm.style.display !== 'block')) {
+                    this.showError('Выберите карту для вывода');
+                    return;
+                }
+                this.processExchange();
+            });
+        }
         
         // Card selection
         modalBody.querySelectorAll('.saved-card').forEach(card => {
@@ -495,16 +529,20 @@ class CryptoExchange {
     }
 
     showModal() {
-        console.log('Showing modal');
-        document.getElementById('paymentModal').style.display = 'flex';
-        document.body.style.overflow = 'hidden';
+        const modal = document.getElementById('paymentModal');
+        if (modal) {
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
     }
 
     closeModal() {
-        console.log('Closing modal');
-        document.getElementById('paymentModal').style.display = 'none';
-        document.body.style.overflow = 'auto';
-        this.selectedPaymentMethod = null;
+        const modal = document.getElementById('paymentModal');
+        if (modal) {
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+            this.selectedPaymentMethod = null;
+        }
     }
 
     formatCardNumber(e) {
@@ -530,9 +568,9 @@ class CryptoExchange {
     }
 
     saveCard(modalBody) {
-        const cardNumber = modalBody.querySelector('.card-number').value;
-        const cardExpiry = modalBody.querySelector('.card-expiry').value;
-        const cardCVC = modalBody.querySelector('.card-cvc').value;
+        const cardNumber = modalBody.querySelector('.card-number')?.value;
+        const cardExpiry = modalBody.querySelector('.card-expiry')?.value;
+        const cardCVC = modalBody.querySelector('.card-cvc')?.value;
 
         if (!this.validateCard(cardNumber, cardExpiry, cardCVC)) {
             this.showError('Пожалуйста, проверьте данные карты');
@@ -554,6 +592,7 @@ class CryptoExchange {
     }
 
     validateCard(number, expiry, cvc) {
+        if (!number || !expiry || !cvc) return false;
         const cleanNumber = number.replace(/\s/g, '');
         return cleanNumber.length === 16 && 
                expiry.length === 5 && 
@@ -569,13 +608,13 @@ class CryptoExchange {
     }
 
     processExchange() {
-        const giveAmount = document.getElementById('giveAmount').value;
-        const getAmount = document.getElementById('getAmount').value;
-        
+        const giveAmount = document.getElementById('giveAmount')?.value || '0';
+        const getAmount = document.getElementById('getAmount')?.value || '0';
         const exchangeBtn = document.getElementById('exchangeBtn');
-        const originalHTML = exchangeBtn.innerHTML;
         
-        console.log('Processing exchange:', { giveAmount, getAmount });
+        if (!exchangeBtn) return;
+        
+        const originalHTML = exchangeBtn.innerHTML;
         
         exchangeBtn.innerHTML = `
             <span class="btn-content">
@@ -602,51 +641,42 @@ class CryptoExchange {
             this.closeModal();
             
             // Reset form
-            if (this.currentDirection === 'buy') {
-                document.getElementById('giveAmount').value = '1000';
-            } else {
-                document.getElementById('giveAmount').value = '100';
+            const giveAmountInput = document.getElementById('giveAmount');
+            if (giveAmountInput) {
+                giveAmountInput.value = this.currentDirection === 'buy' ? '1000' : '100';
+                this.calculateExchange();
             }
-            this.calculateExchange();
         }, 2000);
     }
 
     showError(message) {
-        console.error('Error:', message);
-        tg.showPopup({
-            title: 'Ошибка',
-            message: message
-        });
+        if (typeof tg !== 'undefined') {
+            tg.showPopup({
+                title: 'Ошибка',
+                message: message
+            });
+        } else {
+            alert(`Ошибка: ${message}`);
+        }
     }
 
     showSuccess(title, message) {
-        console.log('Success:', title, message);
-        tg.showPopup({
-            title: title,
-            message: message
-        });
+        if (typeof tg !== 'undefined') {
+            tg.showPopup({
+                title: title,
+                message: message
+            });
+        } else {
+            alert(`${title}: ${message}`);
+        }
     }
 }
 
-// Initialize app when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('DOM fully loaded');
-    new CryptoExchange();
-});
-
-// Fallback initialization
-window.addEventListener('load', () => {
-    console.log('Window fully loaded');
-    if (!window.cryptoExchange) {
+// Initialize when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
         window.cryptoExchange = new CryptoExchange();
-    }
-});
-
-// Debug helper
-window.debugCryptoExchange = function() {
-    console.log('Current state:', {
-        direction: window.cryptoExchange.currentDirection,
-        rate: window.cryptoExchange.currentRate,
-        commission: window.cryptoExchange.commission
     });
-};
+} else {
+    window.cryptoExchange = new CryptoExchange();
+}
